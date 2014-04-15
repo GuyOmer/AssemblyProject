@@ -1,0 +1,498 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+pacman.exe -- emu8086 assembler version: 4.08  
+ 
+[ 15/04/2014  --  19:33:08 ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       ; multi-segment executable file template.
+[   2]        :                                       
+[   3]        :                                       data segment
+[   4]        :                                       ; add your data here!
+[   5]        :                                       
+[   6]        :                                       ;the maze
+[   7]    0000: 23 23 23 23 23 23 23 23 23 23 23 23   MazeLine1  db "#######################################################"
+                23 23 23 23 23 23 23 23 23 23 23 23 
+                23 23 23 23 23 23 23 23 23 23 23 23 
+                23 23 23 23 23 23 23 23 23 23 23 23 
+                23 23 23 23 23 23 23                
+[   8]    0037: 23 20 2E 20 2E 20 2E 20 2E 20 2E 20   MazeLine2  db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #"
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 23 23 23 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 23                
+[   9]    006E: 23 20 2E 20 23 23 23 23 23 23 23 20   MazeLine3  db "# . ####### . ######### . ### . ######### . ####### . #"
+                2E 20 23 23 23 23 23 23 23 23 23 20 
+                2E 20 23 23 23 20 2E 20 23 23 23 23 
+                23 23 23 23 23 20 2E 20 23 23 23 23 
+                23 23 23 20 2E 20 23                
+[  10]    00A5: 23 20 50 20 23 23 23 23 23 23 23 20   MazeLine4  db "# P ####### . ######### . ### . ######### . ####### P #"
+                2E 20 23 23 23 23 23 23 23 23 23 20 
+                2E 20 23 23 23 20 2E 20 23 23 23 23 
+                23 23 23 23 23 20 2E 20 23 23 23 23 
+                23 23 23 20 50 20 23                
+[  11]    00DC: 23 20 2E 20 2E 20 2E 20 2E 20 2E 20   MazeLine5  db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #"
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 23                
+[  12]    0113: 23 20 2E 20 23 23 23 23 23 23 23 20   MazeLine6  db "# . ####### . ### . ############### . ### . ####### . #"
+                2E 20 23 23 23 20 2E 20 23 23 23 23 
+                23 23 23 23 23 23 23 23 23 23 23 20 
+                2E 20 23 23 23 20 2E 20 23 23 23 23 
+                23 23 23 20 2E 20 23                
+[  13]    014A: 23 20 2E 20 2E 20 2E 20 2E 20 2E 20   MazeLine7  db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #"
+                2E 20 23 23 23 20 2E 20 2E 20 2E 20 
+                2E 20 23 23 23 20 2E 20 2E 20 2E 20 
+                2E 20 23 23 23 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 23                
+[  14]    0181: 23 23 23 23 23 23 23 20 2E 20 23 20   MazeLine8  db "####### . # . #########   ###   ######### . # . #######"
+                2E 20 23 23 23 23 23 23 23 23 23 20 
+                20 20 23 23 23 20 20 20 23 23 23 23 
+                23 23 23 23 23 20 2E 20 23 20 2E 20 
+                23 23 23 23 23 23 23                
+[  15]    01B8: 23 23 23 23 23 23 23 20 2E 20 23 20   MazeLine9  db "####### . # . ###                     ### . # . #######"
+                2E 20 23 23 23 20 20 20 20 20 20 20 
+                20 20 20 20 20 20 20 20 20 20 20 20 
+                20 20 23 23 23 20 2E 20 23 20 2E 20 
+                23 23 23 23 23 23 23                
+[  16]    01EF: 23 23 23 23 23 23 23 20 2E 20 23 20   MazeLine10 db "####### . # . ###   ##### - - #####   ### . # . #######"
+                2E 20 23 23 23 20 20 20 23 23 23 23 
+                23 20 2D 20 2D 20 23 23 23 23 23 20 
+                20 20 23 23 23 20 2E 20 23 20 2E 20 
+                23 23 23 23 23 23 23                
+[  17]    0226: 23 23 23 23 23 23 23 20 2E 20 20 20   MazeLine11 db "####### .   . ###   #   H H H H   #   ### . # . #######"
+                2E 20 23 23 23 20 20 20 23 20 20 20 
+                48 20 48 20 48 20 48 20 20 20 23 20 
+                20 20 23 23 23 20 2E 20 23 20 2E 20 
+                23 23 23 23 23 23 23                
+[  18]    025D: 23 23 23 23 23 23 23 20 2E 20 23 20   MazeLine12 db "####### . # . ###   #   H H H H   #   ### . # . #######"
+                2E 20 23 23 23 20 20 20 23 20 20 20 
+                48 20 48 20 48 20 48 20 20 20 23 20 
+                20 20 23 23 23 20 2E 20 23 20 2E 20 
+                23 23 23 23 23 23 23                
+[  19]    0294: 23 23 23 23 23 23 23 20 2E 20 23 20   MazeLine13 db "####### . # . ###   ###############   ### . # . #######"
+                2E 20 23 23 23 20 20 20 23 23 23 23 
+                23 23 23 23 23 23 23 23 23 23 23 20 
+                20 20 23 23 23 20 2E 20 23 20 2E 20 
+                23 23 23 23 23 23 23                
+[  20]    02CB: 23 23 23 23 23 23 23 20 2E 20 23 20   MazeLine14 db "####### . # . ###          @          ### . # . #######"
+                2E 20 23 23 23 20 20 20 20 20 20 20 
+                20 20 20 40 20 20 20 20 20 20 20 20 
+                20 20 23 23 23 20 2E 20 23 20 2E 20 
+                23 23 23 23 23 23 23                
+[  21]    0302: 23 23 23 23 23 23 23 20 2E 20 23 20   MazeLine15 db "####### . # . ###   ##################### . # . #######"
+                2E 20 23 23 23 20 20 20 23 23 23 23 
+                23 23 23 23 23 23 23 23 23 23 23 23 
+                23 23 23 23 23 20 2E 20 23 20 2E 20 
+                23 23 23 23 23 23 23                
+[  22]    0339: 23 20 2E 20 2E 20 2E 20 2E 20 2E 20   MazeLine16 db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #"
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 23 23 23 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 23                
+[  23]    0370: 23 20 2E 20 23 23 23 23 23 23 23 20   MazeLine17 db "# . ####### . ######### . ### . ######### . ####### . #"
+                2E 20 23 23 23 23 23 23 23 23 23 20 
+                2E 20 23 23 23 20 2E 20 23 23 23 23 
+                23 23 23 23 23 20 2E 20 23 23 23 23 
+                23 23 23 20 2E 20 23                
+[  24]    03A7: 23 20 50 20 2E 20 2E 20 23 23 23 20   MazeLine18 db "# P . . ### . . . . . . .  . . . . . . .. . ### . . P #"
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 20 2E 20 2E 20 2E 20 2E 20 2E 
+                20 2E 20 2E 2E 20 2E 20 23 23 23 20 
+                2E 20 2E 20 50 20 23                
+[  25]    03DE: 23 23 23 23 23 20 2E 20 23 23 23 20   MazeLine19 db "##### . ### . ### . ############### . ### . ### . #####"
+                2E 20 23 23 23 20 2E 20 23 23 23 23 
+                23 23 23 23 23 23 23 23 23 23 23 20 
+                2E 20 23 23 23 20 2E 20 23 23 23 20 
+                2E 20 23 23 23 23 23                
+[  26]    0415: 23 20 2E 20 2E 20 2E 20 2E 20 2E 20   MazeLine20 db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #"
+                2E 20 23 23 23 20 2E 20 2E 20 2E 20 
+                2E 20 23 23 23 20 2E 20 2E 20 2E 20 
+                2E 20 23 23 23 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 23                
+[  27]    044C: 23 20 2E 20 23 23 23 23 23 23 23 23   MazeLine21 db "# . ################### . ### . ################### . #"
+                23 23 23 23 23 23 23 23 23 23 23 20 
+                2E 20 23 23 23 20 2E 20 23 23 23 23 
+                23 23 23 23 23 23 23 23 23 23 23 23 
+                23 23 23 20 2E 20 23                
+[  28]    0483: 23 20 2E 20 2E 20 2E 20 2E 20 2E 20   MazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #"
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 2E 20 2E 20 2E 20 
+                2E 20 2E 20 2E 20 23                
+[  29]    04BA: 23 23 23 23 23 23 23 23 23 23 23 23   MazeLine23 db "#######################################################","$"
+                23 23 23 23 23 23 23 23 23 23 23 23 
+                23 23 23 23 23 23 23 23 23 23 23 23 
+                23 23 23 23 23 23 23 23 23 23 23 23 
+                23 23 23 23 23 23 23 24             
+[  30]        :                                       
+[  31]        :                                       ;pacmans coordinates
+[  32]    04F2: 00                                    PlayerRow db ?
+[  33]    04F3: 00                                    PlayerCol db ?
+[  34]        :                                       
+[  35]        :                                       ;number of . to collect
+[  36]    04F4: E0                                    Points db 224
+[  37]        :                                       
+[  38]        :                                       ends
+[  39]        :                                       
+[  40]        :                                       stack segment
+[  41]    0500: 00 00 00 00 00 00 00 00 00 00 00 00   dw   128  dup(0)
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00                         
+[  42]        :                                       ends
+[  43]        :                                       
+[  44]        :                                       code segment
+[  45]    0600:                                       start:
+[  46]        :                                       ; set segment registers:
+[  47]    0600: B8 00 00                              mov ax, data
+[  48]    0603: 8E D8                                 mov ds, ax
+[  49]    0605: 8E C0                                 mov es, ax
+[  50]        :                                       
+[  51]        :                                       ; add your code here
+[  52]        :                                       
+[  53]    0607: B0 03                                 mov al, 03h ;set onsole mode (24x79)
+[  54]    0609: B4 00                                 mov ah, 0
+[  55]    060B: CD 10                                 int 10h
+[  56]        :                                       
+[  57]    060D: B5 20                                 mov ch, 32
+[  58]    060F: B4 01                                 mov ah, 1
+[  59]    0611: CD 10                                 int 10h     ;removes blinking cursor
+[  60]        :                                       
+[  61]    0613: E8 09 00                              call PrintMaze
+[  62]        :                                       
+[  63]        :                                       ;call GetKeystroke
+[  64]        :                                       
+[  65]        :                                       ; wait for any key....
+[  66]    0616: B4 01                                 mov ah, 1
+[  67]    0618: CD 21                                 int 21h
+[  68]        :                                       
+[  69]    061A: B8 00 4C                              mov ax, 4c00h ; exit to operating system.
+[  70]    061D: CD 21                                 int 21h
+[  71]        :                                       
+[  72]    061F:                                       proc PrintMaze
+[  73]        :                                       ;/**
+[  74]        :                                       ;  * This proc prints the whole maze,
+[  75]        :                                       ;  * and colors is according to its chars:
+[  76]        :                                       ;  * # - Blue, . - Yellow, @ - Orange
+[  77]        :                                       ;  * Maze Dimensions: 46x24 Chars
+[  78]        :                                       ;**/
+[  79]        :                                       
+[  80]    061F: 55                                    push bp
+[  81]    0620: 8B EC                                 mov bp,sp
+[  82]        :                                       
+[  83]    0622: 50                                    push ax
+[  84]    0623: 53                                    push bx
+[  85]    0624: 51                                    push cx
+[  86]    0625: 56                                    push si
+[  87]        :                                       
+[  88]    0626: BE FF FF                              mov si, -1
+[  89]    0629:                                       print:
+[  90]    0629: 46                                    inc si
+[  91]    062A: 8A 04                                 mov al, MazeLine1[si]     ;get char to print
+[  92]        :                                       
+[  93]    062C: 80 3C 23                              cmp MazeLine1[si], '#'
+[  94]    062F: 74 0E                                 JE Blue
+[  95]    0631: 80 3C 2E                              cmp MazeLine1[si], '.'
+[  96]    0634: 74 0D                                 JE Yellow
+[  97]    0636: 80 3C 40                              cmp MazeLine1[si], '@'
+[  98]    0639: 74 0C                                 JE Orange
+[  99]        :                                       
+[ 100]    063B: B3 00                                 mov bl, 00h               ;set color black
+[ 101]    063D: EB 0C                                 JMP ResumePrint
+[ 102]        :                                       
+[ 103]    063F:                                       Blue:
+[ 104]    063F: B3 99                                 mov bl, 99h           ;set color light blue
+[ 105]    0641: EB 08                                 JMP ResumePrint
+[ 106]        :                                       
+[ 107]    0643:                                       Yellow:
+[ 108]    0643: B3 0E                                 mov bl, 0eh           ;set color yellow
+[ 109]    0645: EB 04                                 JMP ResumePrint
+[ 110]        :                                       
+[ 111]    0647:                                       Orange:
+[ 112]    0647: B3 0C                                 mov bl, 0ch           ;set color light red
+[ 113]    0649: EB 00                                 JMP ResumePrint
+[ 114]        :                                       
+[ 115]    064B:                                       ResumePrint:
+[ 116]    064B: B9 01 00                              mov cx, 1             ;how many times to print
+[ 117]    064E: B4 09                                 mov ah, 09h
+[ 118]    0650: CD 10                                 int 10h               ;print char
+[ 119]        :                                       
+[ 120]    0652: E8 0B 00                              call MoveCursor
+[ 121]        :                                       
+[ 122]    0655: 80 3C 24                              cmp MazeLine1[si], '$'    ;print char untill terminator ('$')
+[ 123]    0658: 75 CF                                 JNE print
+[ 124]        :                                       
+[ 125]    065A: 5E                                    pop si
+[ 126]    065B: 5B                                    pop bx
+[ 127]    065C: 59                                    pop cx
+[ 128]    065D: 58                                    pop ax
+[ 129]        :                                       
+[ 130]    065E: 5D                                    pop bp
+[ 131]        :                                       
+[ 132]    065F: C3                                    ret
+[ 133]        :                                       endp
+[ 134]        :                                       
+[ 135]    0660:                                       proc MoveCursor
+[ 136]    0660: 55                                    push bp
+[ 137]    0661: 8B EC                                 mov bp,sp
+[ 138]        :                                       
+[ 139]    0663: 50                                    push ax
+[ 140]    0664: 53                                    push bx
+[ 141]    0665: 51                                    push cx
+[ 142]    0666: 52                                    push dx
+[ 143]        :                                       
+[ 144]        :                                       
+[ 145]    0667: B4 03                                 mov ah, 03h
+[ 146]    0669: CD 10                                 int 10h             ;get cursor position. uses bx,cx,dx
+[ 147]        :                                       
+[ 148]    066B: 80 FA 36                              cmp dl, 54          ;print new line after 55 chars
+[ 149]    066E: 75 06                                 JNE NextCol
+[ 150]        :                                       
+[ 151]    0670: FE C6                                 inc dh              ;new line
+[ 152]    0672: B2 00                                 mov dl, 0
+[ 153]    0674: EB 02                                 JMP MC
+[ 154]        :                                       
+[ 155]    0676:                                       NextCol:
+[ 156]    0676: FE C2                                 inc dl          ;move cursor foward
+[ 157]        :                                       
+[ 158]    0678:                                       MC:
+[ 159]    0678: B7 00                                 mov bh, 0       ;page number
+[ 160]    067A: B4 02                                 mov ah, 2
+[ 161]    067C: CD 10                                 int 10h         ;set cursor position
+[ 162]        :                                       
+[ 163]    067E: 5A                                    pop dx
+[ 164]    067F: 59                                    pop cx
+[ 165]    0680: 5B                                    pop bx
+[ 166]    0681: 58                                    pop ax
+[ 167]        :                                       
+[ 168]    0682: 5D                                    pop bp
+[ 169]        :                                       
+[ 170]    0683: C3                                    ret
+[ 171]        :                                       endp
+[ 172]        :                                       
+[ 173]        :                                       
+[ 174]    0684:                                       proc GetKeyStroke
+[ 175]    0684: 55                                    push bp
+[ 176]    0685: 8B EC                                 mov bp, sp
+[ 177]        :                                       
+[ 178]    0687: 51                                    push cx
+[ 179]    0688: 52                                    push dx
+[ 180]        :                                       
+[ 181]        :                                       ;mov ax, 0c00h  ;ah = 0ch, al = 00h, so no input is attempted by int
+[ 182]        :                                       ;int 21h        ;flushes keyboard buffer
+[ 183]        :                                       
+[ 184]    0689: E8 33 00                              call Halt
+[ 185]        :                                       
+[ 186]    068C: B4 01                                 mov ah, 01h
+[ 187]    068E: CD 16                                 int 16h        ;read from buffer
+[ 188]        :                                       
+[ 189]    0690: 74 29                                 JZ NoStroke    ; if ZF = 1, no keystroke was entered, required?
+[ 190]        :                                       
+[ 191]    0692: 80 FC 48                              cmp ah, 48h    ;up key was pressed
+[ 192]    0695: 74 0F                                 JE Up
+[ 193]        :                                       
+[ 194]    0697: 80 FC 4D                              cmp ah , 4Dh   ;right key was pressed
+[ 195]    069A: 74 0E                                 JE Right
+[ 196]        :                                       
+[ 197]    069C: 80 FC 50                              cmp ah, 50h    ;down key was pressed
+[ 198]    069F: 74 0D                                 JE Down
+[ 199]        :                                       
+[ 200]    06A1: 80 FC 4B                              cmp ah, 4bh    ;left key was presses
+[ 201]    06A4: 74 0C                                 JE Left
+[ 202]        :                                       
+[ 203]        :                                       ;not required, debug and simplifaction only!
+[ 204]    06A6:                                       Up:
+[ 205]    06A6: B4 55                                 mov ah, 'U'
+[ 206]    06A8: EB 0C                                 JMP ContGK
+[ 207]        :                                       
+[ 208]    06AA:                                       Right:
+[ 209]    06AA: B4 52                                 mov ah, 'R'
+[ 210]    06AC: EB 08                                 JMP ContGK
+[ 211]        :                                       
+[ 212]    06AE:                                       Down:
+[ 213]    06AE: B4 44                                 mov ah, 'D'
+[ 214]    06B0: EB 04                                 JMP ContGK
+[ 215]        :                                       
+[ 216]    06B2:                                       Left:
+[ 217]    06B2: B4 4C                                 mov ah, 'L'
+[ 218]    06B4: EB 00                                 JMP ContGK
+[ 219]        :                                       
+[ 220]    06B6:                                       ContGK:
+[ 221]        :                                       
+[ 222]    06B6: B8 00 0C                              mov ax, 0c00h  ;ah = 0ch, al = 00h, so no input is attempted by int
+[ 223]    06B9: CD 21                                 int 21h        ;flushes keyboard buffer
+[ 224]        :                                       
+[ 225]    06BB:                                       NoStroke:
+[ 226]        :                                       
+[ 227]    06BB: 5A                                    pop dx
+[ 228]    06BC: 59                                    pop cx
+[ 229]        :                                       
+[ 230]    06BD: 5D                                    pop bp
+[ 231]        :                                       
+[ 232]    06BE: C3                                    ret
+[ 233]        :                                       
+[ 234]        :                                       endp
+[ 235]        :                                       
+[ 236]    06BF:                                       proc Halt
+[ 237]        :                                       
+[ 238]    06BF: 55                                    push bp
+[ 239]    06C0: 8B EC                                 mov bp, sp
+[ 240]        :                                       
+[ 241]    06C2: 50                                    push ax
+[ 242]    06C3: 53                                    push bx
+[ 243]    06C4: 51                                    push cx
+[ 244]    06C5: 52                                    push dx
+[ 245]        :                                       
+[ 246]    06C6: B4 00                                 mov ah, 00h
+[ 247]    06C8: CD 1A                                 int 1ah      ;get system time -> CX:DX, ~18 clicks = 1 second
+[ 248]        :                                       
+[ 249]    06CA: 8B DA                                 mov bx, dx   ; keep starting time
+[ 250]        :                                       
+[ 251]    06CC:                                       Counter:
+[ 252]    06CC: CD 1A                                 int 1ah      ;get system time
+[ 253]    06CE: 2B D3                                 sub dx, bx
+[ 254]    06D0: 83 FA 13                              cmp dx, 19   ;19 clicks > 1 second
+[ 255]    06D3: 7C F7                                 JNGE Counter ;if dx !>= 19
+[ 256]        :                                       
+[ 257]    06D5: 5A                                    pop dx
+[ 258]    06D6: 59                                    pop cx
+[ 259]    06D7: 5B                                    pop bx
+[ 260]    06D8: 58                                    pop ax
+[ 261]        :                                       
+[ 262]    06D9: 5D                                    pop bp
+[ 263]        :                                       
+[ 264]    06DA: C3                                    ret
+[ 265]        :                                       endp
+[ 266]        :                                       
+[ 267]    06DB:                                       proc PlayerMove
+[ 268]    06DB: 55                                    push bp
+[ 269]    06DC: 8B EC                                 mov bp, sp
+[ 270]        :                                       
+[ 271]    06DE: 50                                    push ax
+[ 272]    06DF: 53                                    push bx
+[ 273]    06E0: 51                                    push cx
+[ 274]    06E1: 52                                    push dx
+[ 275]        :                                       
+[ 276]    06E2: 8A 36 F2 04                           mov dh, PlayerRow
+[ 277]    06E6: 8A 16 F3 04                           mov dl, PlayerCol
+[ 278]        :                                       
+[ 279]    06EA: B4 02                                 mov ah, 2
+[ 280]    06EC: CD 10                                 int 10h      ;sets cursor position at pacman position
+[ 281]        :                                       
+[ 282]        :                                       
+[ 283]    06EE: E8 93 FF                              call GetKeyStroke   ;returns in AH which key was pressed (Up\Right\Down\Left)
+[ 284]        :                                       
+[ 285]        :                                       ;call SetCourse      ;sets cursor at deseired coordinates
+[ 286]        :                                       ;call CheckPosition  ;checks deseired coordinates for game elements (walls, points, ghosts...)
+[ 287]        :                                       ;iff walls returns W, points  P (at AH)  >>Include in SetCourse<<
+[ 288]        :                                       
+[ 289]    06F1: 80 FC 57                              cmp ah, 'W'
+[ 290]    06F4: 74 23                                 JE SkipMovement
+[ 291]    06F6: 80 FC 50                              cmp ah, 'P'
+[ 292]    06F9: 74 00                                 JE PointsEarned
+[ 293]        :                                       
+[ 294]    06FB:                                       PointsEarned:
+[ 295]    06FB: A0 F4 04                              mov al, Points
+[ 296]    06FE: FE C8                                 dec al
+[ 297]    0700: A2 F4 04                              mov Points, al
+[ 298]        :                                       
+[ 299]        :                                       
+[ 300]    0703: B0 20                                 mov al, ' '
+[ 301]    0705: B3 00                                 mov bl, 00h         ;set color to black
+[ 302]    0707: B9 00 00                              mov cx, 0           ;print ' ' only once
+[ 303]        :                                       
+[ 304]    070A: B4 09                                 mov ah, 09h
+[ 305]    070C: CD 10                                 int 10h             ;remove pacman spirit from maze
+[ 306]        :                                       
+[ 307]        :                                       
+[ 308]    070E: B0 40                                 mov al, '@'         ;sets pacman spirit
+[ 309]    0710: B3 0C                                 mov bl, 0ch         ;sets color to light red
+[ 310]    0712: B9 00 00                              mov cx, 0           ;print pacman only once
+[ 311]        :                                       
+[ 312]    0715: B4 09                                 mov ah, 09h
+[ 313]    0717: CD 10                                 int 10h             ;re-place pacman at maze
+[ 314]        :                                       
+[ 315]    0719:                                       SkipMovement:
+[ 316]        :                                       
+[ 317]    0719: 5A                                    pop dx
+[ 318]    071A: 59                                    pop cx
+[ 319]    071B: 5B                                    pop bx
+[ 320]    071C: 58                                    pop ax
+[ 321]        :                                       
+[ 322]    071D: 5D                                    pop bp
+[ 323]        :                                       
+[ 324]    071E: C3                                    ret
+[ 325]        :                                       endp
+[ 326]        :                                       
+[ 327]        :                                       ends
+[ 328]        :                                       
+[ 329]        :                                       end start ; set entry point and stop the assembler.
+[ 330]        :                                       
+ 
+===================================================================================================
+ 
+EXE HEADER - bytes from 0000 to 01FF inclusive.
+
+0000: 4D      -   exe signature (M)
+0001: 5A      -   exe signature (Z)
+0002: 1F      -   bytes on last page (l.byte)
+0003: 01      -   bytes on last page (h.byte)
+0004: 05      -   512 byte pages in file (l.byte)
+0005: 00      -   512 byte pages in file (h.byte)
+0006: 01      -   relocations (l.byte)
+0007: 00      -   relocations (h.byte)
+0008: 20      -   paragraphs in header (l.byte)
+0009: 00      -   paragraphs in header (h.byte)
+000A: 00      -   minimum memory (l.byte)
+000B: 00      -   minimum memory (h.byte)
+000C: FF      -   maximum memory (l.byte)
+000D: FF      -   maximum memory (h.byte)
+000E: 50      -   SS - stack segment (l.byte)
+000F: 00      -   SS - stack segment (h.byte)
+0010: 00      -   SP - stack pointer (l.byte)
+0011: 01      -   SP - stack pointer (h.byte)
+0012: 0E      -   check sum (l.byte)
+0013: AE      -   check sum (h.byte)
+0014: 00      -   IP - instruction pointer (l.byte)
+0015: 00      -   IP - instruction pointer (h.byte)
+0016: 60      -   CS - code segment (l.byte)
+0017: 00      -   CS - code segment (h.byte)
+0018: 1E      -   relocation table adress (l.byte)
+0019: 00      -   relocation table adress (h.byte)
+001A: 00      -   overlay number (l.byte)
+001B: 00      -   overlay number (h.byte)
+001C: 01      -   signature (l.byte)
+001D: 00      -   signature (h.byte)
+001E: 01      -   relocation table - offset inside segment (l.byte)
+001F: 00      -   relocation table - offset inside segment (h.byte)
+0020: 60      -   relocation table - segment anchor (l.byte)
+0021: 00      -   relocation table - segment anchor (h.byte)
+0022 to 01FF  -   reserved relocation area  (00) 
+
+
+
+
+===================================================================================================
