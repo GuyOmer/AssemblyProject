@@ -2,7 +2,7 @@ EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
  
 pacman.exe -- emu8086 assembler version: 4.08  
  
-[ 15/04/2014  --  19:33:08 ] 
+[ 15/04/2014  --  20:17:08 ] 
  
 ===================================================================================================
 [LINE]     LOC: MACHINE CODE                          SOURCE
@@ -173,7 +173,7 @@ pacman.exe -- emu8086 assembler version: 4.08
 [  50]        :                                       
 [  51]        :                                       ; add your code here
 [  52]        :                                       
-[  53]    0607: B0 03                                 mov al, 03h ;set onsole mode (24x79)
+[  53]    0607: B0 03                                 mov al, 03h ;set console's mode (24x79)
 [  54]    0609: B4 00                                 mov ah, 0
 [  55]    060B: CD 10                                 int 10h
 [  56]        :                                       
@@ -181,276 +181,352 @@ pacman.exe -- emu8086 assembler version: 4.08
 [  58]    060F: B4 01                                 mov ah, 1
 [  59]    0611: CD 10                                 int 10h     ;removes blinking cursor
 [  60]        :                                       
-[  61]    0613: E8 09 00                              call PrintMaze
+[  61]    0613: E8 0E 00                              call PrintMaze
 [  62]        :                                       
-[  63]        :                                       ;call GetKeystroke
-[  64]        :                                       
-[  65]        :                                       ; wait for any key....
-[  66]    0616: B4 01                                 mov ah, 1
-[  67]    0618: CD 21                                 int 21h
-[  68]        :                                       
-[  69]    061A: B8 00 4C                              mov ax, 4c00h ; exit to operating system.
-[  70]    061D: CD 21                                 int 21h
-[  71]        :                                       
-[  72]    061F:                                       proc PrintMaze
-[  73]        :                                       ;/**
-[  74]        :                                       ;  * This proc prints the whole maze,
-[  75]        :                                       ;  * and colors is according to its chars:
-[  76]        :                                       ;  * # - Blue, . - Yellow, @ - Orange
-[  77]        :                                       ;  * Maze Dimensions: 46x24 Chars
-[  78]        :                                       ;**/
-[  79]        :                                       
-[  80]    061F: 55                                    push bp
-[  81]    0620: 8B EC                                 mov bp,sp
-[  82]        :                                       
-[  83]    0622: 50                                    push ax
-[  84]    0623: 53                                    push bx
-[  85]    0624: 51                                    push cx
-[  86]    0625: 56                                    push si
-[  87]        :                                       
-[  88]    0626: BE FF FF                              mov si, -1
-[  89]    0629:                                       print:
-[  90]    0629: 46                                    inc si
-[  91]    062A: 8A 04                                 mov al, MazeLine1[si]     ;get char to print
-[  92]        :                                       
-[  93]    062C: 80 3C 23                              cmp MazeLine1[si], '#'
-[  94]    062F: 74 0E                                 JE Blue
-[  95]    0631: 80 3C 2E                              cmp MazeLine1[si], '.'
-[  96]    0634: 74 0D                                 JE Yellow
-[  97]    0636: 80 3C 40                              cmp MazeLine1[si], '@'
-[  98]    0639: 74 0C                                 JE Orange
-[  99]        :                                       
-[ 100]    063B: B3 00                                 mov bl, 00h               ;set color black
-[ 101]    063D: EB 0C                                 JMP ResumePrint
-[ 102]        :                                       
-[ 103]    063F:                                       Blue:
-[ 104]    063F: B3 99                                 mov bl, 99h           ;set color light blue
-[ 105]    0641: EB 08                                 JMP ResumePrint
-[ 106]        :                                       
-[ 107]    0643:                                       Yellow:
-[ 108]    0643: B3 0E                                 mov bl, 0eh           ;set color yellow
-[ 109]    0645: EB 04                                 JMP ResumePrint
-[ 110]        :                                       
-[ 111]    0647:                                       Orange:
-[ 112]    0647: B3 0C                                 mov bl, 0ch           ;set color light red
-[ 113]    0649: EB 00                                 JMP ResumePrint
-[ 114]        :                                       
-[ 115]    064B:                                       ResumePrint:
-[ 116]    064B: B9 01 00                              mov cx, 1             ;how many times to print
-[ 117]    064E: B4 09                                 mov ah, 09h
-[ 118]    0650: CD 10                                 int 10h               ;print char
-[ 119]        :                                       
-[ 120]    0652: E8 0B 00                              call MoveCursor
-[ 121]        :                                       
-[ 122]    0655: 80 3C 24                              cmp MazeLine1[si], '$'    ;print char untill terminator ('$')
-[ 123]    0658: 75 CF                                 JNE print
-[ 124]        :                                       
-[ 125]    065A: 5E                                    pop si
-[ 126]    065B: 5B                                    pop bx
-[ 127]    065C: 59                                    pop cx
-[ 128]    065D: 58                                    pop ax
-[ 129]        :                                       
-[ 130]    065E: 5D                                    pop bp
-[ 131]        :                                       
-[ 132]    065F: C3                                    ret
-[ 133]        :                                       endp
-[ 134]        :                                       
-[ 135]    0660:                                       proc MoveCursor
-[ 136]    0660: 55                                    push bp
-[ 137]    0661: 8B EC                                 mov bp,sp
-[ 138]        :                                       
-[ 139]    0663: 50                                    push ax
-[ 140]    0664: 53                                    push bx
-[ 141]    0665: 51                                    push cx
-[ 142]    0666: 52                                    push dx
-[ 143]        :                                       
+[  63]    0616:                                       T1:
+[  64]    0616: E8 C7 00                              call PlayerMove
+[  65]    0619: EB FB                                 JMP T1
+[  66]        :                                       ; wait for any key....
+[  67]    061B: B4 01                                 mov ah, 1
+[  68]    061D: CD 21                                 int 21h
+[  69]        :                                       
+[  70]    061F: B8 00 4C                              mov ax, 4c00h ; exit to operating system.
+[  71]    0622: CD 21                                 int 21h
+[  72]        :                                       
+[  73]    0624:                                       proc PrintMaze
+[  74]        :                                       ;/**
+[  75]        :                                       ;  * This proc prints the whole maze,
+[  76]        :                                       ;  * and colors is according to its chars:
+[  77]        :                                       ;  * # - Blue, . - Yellow, @ - Orange
+[  78]        :                                       ;  * Maze Dimensions: 46x24 Chars
+[  79]        :                                       ;**/
+[  80]        :                                       
+[  81]    0624: 55                                    push bp
+[  82]    0625: 8B EC                                 mov bp,sp
+[  83]        :                                       
+[  84]    0627: 50                                    push ax
+[  85]    0628: 53                                    push bx
+[  86]    0629: 51                                    push cx
+[  87]    062A: 56                                    push si
+[  88]        :                                       
+[  89]    062B: BE FF FF                              mov si, -1
+[  90]    062E:                                       print:
+[  91]    062E: 46                                    inc si
+[  92]    062F: 8A 04                                 mov al, MazeLine1[si]     ;get char to print
+[  93]        :                                       
+[  94]    0631: 80 3C 23                              cmp MazeLine1[si], '#'
+[  95]    0634: 74 0E                                 JE Blue
+[  96]    0636: 80 3C 2E                              cmp MazeLine1[si], '.'
+[  97]    0639: 74 0D                                 JE Yellow
+[  98]    063B: 80 3C 40                              cmp MazeLine1[si], '@'
+[  99]    063E: 74 0C                                 JE Orange
+[ 100]        :                                       
+[ 101]    0640: B3 00                                 mov bl, 00h               ;set color black
+[ 102]    0642: EB 0C                                 JMP ResumePrint
+[ 103]        :                                       
+[ 104]    0644:                                       Blue:
+[ 105]    0644: B3 99                                 mov bl, 99h           ;set color light blue
+[ 106]    0646: EB 08                                 JMP ResumePrint
+[ 107]        :                                       
+[ 108]    0648:                                       Yellow:
+[ 109]    0648: B3 0E                                 mov bl, 0eh           ;set color yellow
+[ 110]    064A: EB 04                                 JMP ResumePrint
+[ 111]        :                                       
+[ 112]    064C:                                       Orange:
+[ 113]    064C: B3 0C                                 mov bl, 0ch           ;set color light red
+[ 114]    064E: EB 00                                 JMP ResumePrint
+[ 115]        :                                       
+[ 116]    0650:                                       ResumePrint:
+[ 117]    0650: B9 01 00                              mov cx, 1             ;how many times to print
+[ 118]    0653: B4 09                                 mov ah, 09h
+[ 119]    0655: CD 10                                 int 10h               ;print char
+[ 120]        :                                       
+[ 121]    0657: E8 0B 00                              call MoveCursor
+[ 122]        :                                       
+[ 123]    065A: 80 3C 24                              cmp MazeLine1[si], '$'    ;print char untill terminator ('$')
+[ 124]    065D: 75 CF                                 JNE print
+[ 125]        :                                       
+[ 126]    065F: 5E                                    pop si
+[ 127]    0660: 5B                                    pop bx
+[ 128]    0661: 59                                    pop cx
+[ 129]    0662: 58                                    pop ax
+[ 130]        :                                       
+[ 131]    0663: 5D                                    pop bp
+[ 132]        :                                       
+[ 133]    0664: C3                                    ret
+[ 134]        :                                       endp
+[ 135]        :                                       
+[ 136]    0665:                                       proc MoveCursor
+[ 137]    0665: 55                                    push bp
+[ 138]    0666: 8B EC                                 mov bp,sp
+[ 139]        :                                       
+[ 140]    0668: 50                                    push ax
+[ 141]    0669: 53                                    push bx
+[ 142]    066A: 51                                    push cx
+[ 143]    066B: 52                                    push dx
 [ 144]        :                                       
-[ 145]    0667: B4 03                                 mov ah, 03h
-[ 146]    0669: CD 10                                 int 10h             ;get cursor position. uses bx,cx,dx
-[ 147]        :                                       
-[ 148]    066B: 80 FA 36                              cmp dl, 54          ;print new line after 55 chars
-[ 149]    066E: 75 06                                 JNE NextCol
-[ 150]        :                                       
-[ 151]    0670: FE C6                                 inc dh              ;new line
-[ 152]    0672: B2 00                                 mov dl, 0
-[ 153]    0674: EB 02                                 JMP MC
-[ 154]        :                                       
-[ 155]    0676:                                       NextCol:
-[ 156]    0676: FE C2                                 inc dl          ;move cursor foward
-[ 157]        :                                       
-[ 158]    0678:                                       MC:
-[ 159]    0678: B7 00                                 mov bh, 0       ;page number
-[ 160]    067A: B4 02                                 mov ah, 2
-[ 161]    067C: CD 10                                 int 10h         ;set cursor position
-[ 162]        :                                       
-[ 163]    067E: 5A                                    pop dx
-[ 164]    067F: 59                                    pop cx
-[ 165]    0680: 5B                                    pop bx
-[ 166]    0681: 58                                    pop ax
-[ 167]        :                                       
-[ 168]    0682: 5D                                    pop bp
-[ 169]        :                                       
-[ 170]    0683: C3                                    ret
-[ 171]        :                                       endp
-[ 172]        :                                       
+[ 145]        :                                       
+[ 146]    066C: B4 03                                 mov ah, 03h
+[ 147]    066E: CD 10                                 int 10h             ;get cursor position. uses bx,cx,dx
+[ 148]        :                                       
+[ 149]    0670: 80 FA 36                              cmp dl, 54          ;print new line after 55 chars
+[ 150]    0673: 75 06                                 JNE NextCol
+[ 151]        :                                       
+[ 152]    0675: FE C6                                 inc dh              ;new line
+[ 153]    0677: B2 00                                 mov dl, 0
+[ 154]    0679: EB 02                                 JMP MC
+[ 155]        :                                       
+[ 156]    067B:                                       NextCol:
+[ 157]    067B: FE C2                                 inc dl          ;move cursor foward
+[ 158]        :                                       
+[ 159]    067D:                                       MC:
+[ 160]    067D: B7 00                                 mov bh, 0       ;page number
+[ 161]    067F: B4 02                                 mov ah, 2
+[ 162]    0681: CD 10                                 int 10h         ;set cursor position
+[ 163]        :                                       
+[ 164]    0683: 5A                                    pop dx
+[ 165]    0684: 59                                    pop cx
+[ 166]    0685: 5B                                    pop bx
+[ 167]    0686: 58                                    pop ax
+[ 168]        :                                       
+[ 169]    0687: 5D                                    pop bp
+[ 170]        :                                       
+[ 171]    0688: C3                                    ret
+[ 172]        :                                       endp
 [ 173]        :                                       
-[ 174]    0684:                                       proc GetKeyStroke
-[ 175]    0684: 55                                    push bp
-[ 176]    0685: 8B EC                                 mov bp, sp
-[ 177]        :                                       
-[ 178]    0687: 51                                    push cx
-[ 179]    0688: 52                                    push dx
-[ 180]        :                                       
-[ 181]        :                                       ;mov ax, 0c00h  ;ah = 0ch, al = 00h, so no input is attempted by int
-[ 182]        :                                       ;int 21h        ;flushes keyboard buffer
-[ 183]        :                                       
-[ 184]    0689: E8 33 00                              call Halt
-[ 185]        :                                       
-[ 186]    068C: B4 01                                 mov ah, 01h
-[ 187]    068E: CD 16                                 int 16h        ;read from buffer
-[ 188]        :                                       
-[ 189]    0690: 74 29                                 JZ NoStroke    ; if ZF = 1, no keystroke was entered, required?
-[ 190]        :                                       
-[ 191]    0692: 80 FC 48                              cmp ah, 48h    ;up key was pressed
-[ 192]    0695: 74 0F                                 JE Up
-[ 193]        :                                       
-[ 194]    0697: 80 FC 4D                              cmp ah , 4Dh   ;right key was pressed
-[ 195]    069A: 74 0E                                 JE Right
-[ 196]        :                                       
-[ 197]    069C: 80 FC 50                              cmp ah, 50h    ;down key was pressed
-[ 198]    069F: 74 0D                                 JE Down
-[ 199]        :                                       
-[ 200]    06A1: 80 FC 4B                              cmp ah, 4bh    ;left key was presses
-[ 201]    06A4: 74 0C                                 JE Left
-[ 202]        :                                       
-[ 203]        :                                       ;not required, debug and simplifaction only!
-[ 204]    06A6:                                       Up:
-[ 205]    06A6: B4 55                                 mov ah, 'U'
-[ 206]    06A8: EB 0C                                 JMP ContGK
-[ 207]        :                                       
-[ 208]    06AA:                                       Right:
-[ 209]    06AA: B4 52                                 mov ah, 'R'
-[ 210]    06AC: EB 08                                 JMP ContGK
-[ 211]        :                                       
-[ 212]    06AE:                                       Down:
-[ 213]    06AE: B4 44                                 mov ah, 'D'
-[ 214]    06B0: EB 04                                 JMP ContGK
-[ 215]        :                                       
-[ 216]    06B2:                                       Left:
-[ 217]    06B2: B4 4C                                 mov ah, 'L'
-[ 218]    06B4: EB 00                                 JMP ContGK
-[ 219]        :                                       
-[ 220]    06B6:                                       ContGK:
-[ 221]        :                                       
-[ 222]    06B6: B8 00 0C                              mov ax, 0c00h  ;ah = 0ch, al = 00h, so no input is attempted by int
-[ 223]    06B9: CD 21                                 int 21h        ;flushes keyboard buffer
-[ 224]        :                                       
-[ 225]    06BB:                                       NoStroke:
-[ 226]        :                                       
-[ 227]    06BB: 5A                                    pop dx
-[ 228]    06BC: 59                                    pop cx
-[ 229]        :                                       
-[ 230]    06BD: 5D                                    pop bp
-[ 231]        :                                       
-[ 232]    06BE: C3                                    ret
-[ 233]        :                                       
-[ 234]        :                                       endp
-[ 235]        :                                       
-[ 236]    06BF:                                       proc Halt
-[ 237]        :                                       
-[ 238]    06BF: 55                                    push bp
-[ 239]    06C0: 8B EC                                 mov bp, sp
-[ 240]        :                                       
-[ 241]    06C2: 50                                    push ax
-[ 242]    06C3: 53                                    push bx
-[ 243]    06C4: 51                                    push cx
-[ 244]    06C5: 52                                    push dx
-[ 245]        :                                       
-[ 246]    06C6: B4 00                                 mov ah, 00h
-[ 247]    06C8: CD 1A                                 int 1ah      ;get system time -> CX:DX, ~18 clicks = 1 second
-[ 248]        :                                       
-[ 249]    06CA: 8B DA                                 mov bx, dx   ; keep starting time
-[ 250]        :                                       
-[ 251]    06CC:                                       Counter:
-[ 252]    06CC: CD 1A                                 int 1ah      ;get system time
-[ 253]    06CE: 2B D3                                 sub dx, bx
-[ 254]    06D0: 83 FA 13                              cmp dx, 19   ;19 clicks > 1 second
-[ 255]    06D3: 7C F7                                 JNGE Counter ;if dx !>= 19
-[ 256]        :                                       
-[ 257]    06D5: 5A                                    pop dx
-[ 258]    06D6: 59                                    pop cx
-[ 259]    06D7: 5B                                    pop bx
-[ 260]    06D8: 58                                    pop ax
-[ 261]        :                                       
-[ 262]    06D9: 5D                                    pop bp
-[ 263]        :                                       
-[ 264]    06DA: C3                                    ret
-[ 265]        :                                       endp
-[ 266]        :                                       
-[ 267]    06DB:                                       proc PlayerMove
-[ 268]    06DB: 55                                    push bp
-[ 269]    06DC: 8B EC                                 mov bp, sp
-[ 270]        :                                       
-[ 271]    06DE: 50                                    push ax
-[ 272]    06DF: 53                                    push bx
-[ 273]    06E0: 51                                    push cx
-[ 274]    06E1: 52                                    push dx
-[ 275]        :                                       
-[ 276]    06E2: 8A 36 F2 04                           mov dh, PlayerRow
-[ 277]    06E6: 8A 16 F3 04                           mov dl, PlayerCol
+[ 174]        :                                       
+[ 175]    0689:                                       proc GetKeyStroke
+[ 176]    0689: 55                                    push bp
+[ 177]    068A: 8B EC                                 mov bp, sp
+[ 178]        :                                       
+[ 179]    068C: 51                                    push cx
+[ 180]    068D: 52                                    push dx
+[ 181]        :                                       
+[ 182]        :                                       ;mov ax, 0c00h  ;ah = 0ch, al = 00h, so no input is attempted by int
+[ 183]        :                                       ;int 21h        ;flushes keyboard buffer
+[ 184]        :                                       
+[ 185]    068E: E8 33 00                              call Halt
+[ 186]        :                                       
+[ 187]    0691: B4 01                                 mov ah, 01h
+[ 188]    0693: CD 16                                 int 16h        ;read from buffer
+[ 189]        :                                       
+[ 190]    0695: 74 29                                 JZ NoStroke    ; if ZF = 1, no keystroke was entered, required?
+[ 191]        :                                       
+[ 192]    0697: 80 FC 48                              cmp ah, 48h    ;up key was pressed
+[ 193]    069A: 74 0F                                 JE Up
+[ 194]        :                                       
+[ 195]    069C: 80 FC 4D                              cmp ah , 4Dh   ;right key was pressed
+[ 196]    069F: 74 0E                                 JE Right
+[ 197]        :                                       
+[ 198]    06A1: 80 FC 50                              cmp ah, 50h    ;down key was pressed
+[ 199]    06A4: 74 0D                                 JE Down
+[ 200]        :                                       
+[ 201]    06A6: 80 FC 4B                              cmp ah, 4bh    ;left key was presses
+[ 202]    06A9: 74 0C                                 JE Left
+[ 203]        :                                       
+[ 204]        :                                       ;not required, debug and simplifaction only!
+[ 205]    06AB:                                       Up:
+[ 206]    06AB: B4 55                                 mov ah, 'U'
+[ 207]    06AD: EB 0C                                 JMP ContGK
+[ 208]        :                                       
+[ 209]    06AF:                                       Right:
+[ 210]    06AF: B4 52                                 mov ah, 'R'
+[ 211]    06B1: EB 08                                 JMP ContGK
+[ 212]        :                                       
+[ 213]    06B3:                                       Down:
+[ 214]    06B3: B4 44                                 mov ah, 'D'
+[ 215]    06B5: EB 04                                 JMP ContGK
+[ 216]        :                                       
+[ 217]    06B7:                                       Left:
+[ 218]    06B7: B4 4C                                 mov ah, 'L'
+[ 219]    06B9: EB 00                                 JMP ContGK
+[ 220]        :                                       
+[ 221]    06BB:                                       ContGK:
+[ 222]        :                                       
+[ 223]    06BB: B8 00 0C                              mov ax, 0c00h  ;ah = 0ch, al = 00h, so no input is attempted by int
+[ 224]    06BE: CD 21                                 int 21h        ;flushes keyboard buffer
+[ 225]        :                                       
+[ 226]    06C0:                                       NoStroke:
+[ 227]        :                                       
+[ 228]    06C0: 5A                                    pop dx
+[ 229]    06C1: 59                                    pop cx
+[ 230]        :                                       
+[ 231]    06C2: 5D                                    pop bp
+[ 232]        :                                       
+[ 233]    06C3: C3                                    ret
+[ 234]        :                                       
+[ 235]        :                                       endp
+[ 236]        :                                       
+[ 237]    06C4:                                       proc Halt
+[ 238]        :                                       
+[ 239]    06C4: 55                                    push bp
+[ 240]    06C5: 8B EC                                 mov bp, sp
+[ 241]        :                                       
+[ 242]    06C7: 50                                    push ax
+[ 243]    06C8: 53                                    push bx
+[ 244]    06C9: 51                                    push cx
+[ 245]    06CA: 52                                    push dx
+[ 246]        :                                       
+[ 247]    06CB: B4 00                                 mov ah, 00h
+[ 248]    06CD: CD 1A                                 int 1ah      ;get system time -> CX:DX, ~18 clicks = 1 second
+[ 249]        :                                       
+[ 250]    06CF: 8B DA                                 mov bx, dx   ; keep starting time
+[ 251]        :                                       
+[ 252]    06D1:                                       Counter:
+[ 253]    06D1: CD 1A                                 int 1ah      ;get system time
+[ 254]    06D3: 2B D3                                 sub dx, bx
+[ 255]    06D5: 83 FA 13                              cmp dx, 19   ;19 clicks > 1 second
+[ 256]    06D8: 7C F7                                 JNGE Counter ;if dx !>= 19
+[ 257]        :                                       
+[ 258]    06DA: 5A                                    pop dx
+[ 259]    06DB: 59                                    pop cx
+[ 260]    06DC: 5B                                    pop bx
+[ 261]    06DD: 58                                    pop ax
+[ 262]        :                                       
+[ 263]    06DE: 5D                                    pop bp
+[ 264]        :                                       
+[ 265]    06DF: C3                                    ret
+[ 266]        :                                       endp
+[ 267]        :                                       
+[ 268]    06E0:                                       proc PlayerMove
+[ 269]    06E0: 55                                    push bp
+[ 270]    06E1: 8B EC                                 mov bp, sp
+[ 271]        :                                       
+[ 272]    06E3: 50                                    push ax
+[ 273]    06E4: 53                                    push bx
+[ 274]    06E5: 51                                    push cx
+[ 275]    06E6: 52                                    push dx
+[ 276]        :                                       
+[ 277]    06E7: E8 9F FF                              call GetKeyStroke   ;returns in AH which key was pressed (Up\Right\Down\Left)
 [ 278]        :                                       
-[ 279]    06EA: B4 02                                 mov ah, 2
-[ 280]    06EC: CD 10                                 int 10h      ;sets cursor position at pacman position
-[ 281]        :                                       
+[ 279]    06EA: E8 2E 00                              call SetCourse      ;sets cursor at desired coordinates
+[ 280]        :                                       ;call CheckPosition  ;checks desired coordinates for game elements (walls, points, ghosts...)
+[ 281]        :                                       ;iff walls returns W, points  P (at AH)  >>Include in SetCourse<<
 [ 282]        :                                       
-[ 283]    06EE: E8 93 FF                              call GetKeyStroke   ;returns in AH which key was pressed (Up\Right\Down\Left)
-[ 284]        :                                       
-[ 285]        :                                       ;call SetCourse      ;sets cursor at deseired coordinates
-[ 286]        :                                       ;call CheckPosition  ;checks deseired coordinates for game elements (walls, points, ghosts...)
-[ 287]        :                                       ;iff walls returns W, points  P (at AH)  >>Include in SetCourse<<
-[ 288]        :                                       
-[ 289]    06F1: 80 FC 57                              cmp ah, 'W'
-[ 290]    06F4: 74 23                                 JE SkipMovement
-[ 291]    06F6: 80 FC 50                              cmp ah, 'P'
-[ 292]    06F9: 74 00                                 JE PointsEarned
-[ 293]        :                                       
-[ 294]    06FB:                                       PointsEarned:
-[ 295]    06FB: A0 F4 04                              mov al, Points
-[ 296]    06FE: FE C8                                 dec al
-[ 297]    0700: A2 F4 04                              mov Points, al
+[ 283]    06ED: 3C 57                                 cmp al, 'W'
+[ 284]    06EF: 74 24                                 JE SkipMovement
+[ 285]    06F1: 3C 50                                 cmp al, 'P'
+[ 286]    06F3: 74 00                                 JE PointsEarned
+[ 287]        :                                       
+[ 288]    06F5:                                       PointsEarned:
+[ 289]    06F5: A0 F4 04                              mov al, Points
+[ 290]    06F8: FE C8                                 dec al
+[ 291]    06FA: A2 F4 04                              mov Points, al
+[ 292]        :                                       
+[ 293]    06FD: B7 00                                 mov bh, 0           ; sets page to 0
+[ 294]        :                                       
+[ 295]    06FF: B0 20                                 mov al, ' '
+[ 296]    0701: B3 00                                 mov bl, 00h         ;set color to black
+[ 297]    0703: B9 00 00                              mov cx, 0           ;print ' ' only once
 [ 298]        :                                       
-[ 299]        :                                       
-[ 300]    0703: B0 20                                 mov al, ' '
-[ 301]    0705: B3 00                                 mov bl, 00h         ;set color to black
-[ 302]    0707: B9 00 00                              mov cx, 0           ;print ' ' only once
-[ 303]        :                                       
-[ 304]    070A: B4 09                                 mov ah, 09h
-[ 305]    070C: CD 10                                 int 10h             ;remove pacman spirit from maze
+[ 299]    0706: B4 09                                 mov ah, 09h
+[ 300]    0708: CD 10                                 int 10h             ;remove pacman spirit from maze
+[ 301]        :                                       
+[ 302]        :                                       
+[ 303]    070A: B0 40                                 mov al, '@'         ;sets pacman spirit
+[ 304]    070C: B3 0C                                 mov bl, 0ch         ;sets color to light red
+[ 305]    070E: B9 00 00                              mov cx, 0           ;print pacman only once
 [ 306]        :                                       
-[ 307]        :                                       
-[ 308]    070E: B0 40                                 mov al, '@'         ;sets pacman spirit
-[ 309]    0710: B3 0C                                 mov bl, 0ch         ;sets color to light red
-[ 310]    0712: B9 00 00                              mov cx, 0           ;print pacman only once
+[ 307]    0711: B4 09                                 mov ah, 09h
+[ 308]    0713: CD 10                                 int 10h             ;re-place pacman spirit at maze
+[ 309]        :                                       
+[ 310]    0715:                                       SkipMovement:
 [ 311]        :                                       
-[ 312]    0715: B4 09                                 mov ah, 09h
-[ 313]    0717: CD 10                                 int 10h             ;re-place pacman at maze
-[ 314]        :                                       
-[ 315]    0719:                                       SkipMovement:
+[ 312]    0715: 5A                                    pop dx
+[ 313]    0716: 59                                    pop cx
+[ 314]    0717: 5B                                    pop bx
+[ 315]    0718: 58                                    pop ax
 [ 316]        :                                       
-[ 317]    0719: 5A                                    pop dx
-[ 318]    071A: 59                                    pop cx
-[ 319]    071B: 5B                                    pop bx
-[ 320]    071C: 58                                    pop ax
+[ 317]    0719: 5D                                    pop bp
+[ 318]        :                                       
+[ 319]    071A: C3                                    ret
+[ 320]        :                                       endp
 [ 321]        :                                       
-[ 322]    071D: 5D                                    pop bp
-[ 323]        :                                       
-[ 324]    071E: C3                                    ret
-[ 325]        :                                       endp
-[ 326]        :                                       
-[ 327]        :                                       ends
-[ 328]        :                                       
-[ 329]        :                                       end start ; set entry point and stop the assembler.
+[ 322]    071B:                                       proc SetCourse
+[ 323]        :                                       ;  /**
+[ 324]        :                                       ;  * proc sets cursor at desired location,
+[ 325]        :                                       ;  * checks if movememt s vaild, and updates pacman's Cords
+[ 326]        :                                       ;  **/
+[ 327]        :                                       
+[ 328]    071B: 55                                    push bp
+[ 329]    071C: 8B EC                                 mov bp, sp
 [ 330]        :                                       
+[ 331]    071E: 53                                    push bx
+[ 332]    071F: 52                                    push dx
+[ 333]        :                                       
+[ 334]    0720: B7 00                                 mov bh, 0         ;sets page to 0
+[ 335]        :                                       
+[ 336]    0722: 8A 36 F2 04                           mov dh, PlayerRow ;sets dx as pacman's position
+[ 337]    0726: 8A 16 F3 04                           mov dl, PlayerCol
+[ 338]        :                                       
+[ 339]    072A: 80 FC 55                              cmp ah, 'U'
+[ 340]    072D: 74 0F                                 JE SCUp
+[ 341]    072F: 80 FC 52                              cmp ah, 'R'
+[ 342]    0732: 74 0E                                 JE SCRight
+[ 343]    0734: 80 FC 44                              cmp ah, 'D'
+[ 344]    0737: 74 0D                                 JE SCDown
+[ 345]    0739: 80 FC 4C                              cmp ah, 'L'
+[ 346]    073C: 74 0C                                 JE SCLeft
+[ 347]        :                                       
+[ 348]    073E:                                       SCUp:
+[ 349]    073E: FE CE                                 dec dh
+[ 350]    0740: EB 0A                                 JMP ContSC
+[ 351]    0742:                                       SCRight:
+[ 352]    0742: FE C2                                 inc dl
+[ 353]    0744: EB 06                                 JMP ContSC
+[ 354]    0746:                                       SCDown:
+[ 355]    0746: FE C6                                 inc dh
+[ 356]    0748: EB 02                                 JMP ContSC
+[ 357]    074A:                                       SCLeft:
+[ 358]    074A: FE CA                                 dec dl
+[ 359]        :                                       
+[ 360]    074C:                                       ContSC:
+[ 361]    074C: B4 02                                 mov ah, 2
+[ 362]    074E: CD 10                                 int 10h             ;sets cursor position at desired location
+[ 363]        :                                       
+[ 364]    0750: E8 10 00                              call CheckLocation  ;checks coordinates for game elements
+[ 365]        :                                       ;returns char at AL, attribute at AH
+[ 366]        :                                       
+[ 367]    0753: 3C 23                                 cmp al, '#'         ; if wall denies movement in desired direction
+[ 368]    0755: 74 08                                 JE RejectNewCords
+[ 369]        :                                       
+[ 370]    0757: 88 36 F2 04                           mov PlayerRow ,dh
+[ 371]    075B: 88 16 F3 04                           mov PlayerCol ,dl ;updates pacman's position
+[ 372]        :                                       
+[ 373]    075F:                                       RejectNewCords:
+[ 374]        :                                       
+[ 375]    075F: 5A                                    pop dx
+[ 376]    0760: 5B                                    pop bx
+[ 377]        :                                       
+[ 378]    0761: 5D                                    pop bp
+[ 379]        :                                       
+[ 380]    0762: C3                                    ret
+[ 381]        :                                       endp
+[ 382]        :                                       
+[ 383]    0763:                                       proc CheckLocation
+[ 384]        :                                       ;  /**
+[ 385]        :                                       ;  * proc returns data about current cursor location
+[ 386]        :                                       ;  * char at AL, attribute at AH
+[ 387]        :                                       ;  **/
+[ 388]    0763: 55                                    push bp
+[ 389]    0764: 8B EC                                 mov bp,sp
+[ 390]        :                                       
+[ 391]    0766: 53                                    push bx
+[ 392]        :                                       
+[ 393]    0767: B7 00                                 mov bh, 0     ;sets page to 0
+[ 394]    0769: B4 08                                 mov ah, 08h   ;reads data of cursor location
+[ 395]    076B: CD 10                                 int 10h       ;stores char at AL, attribute at AH
+[ 396]        :                                       
+[ 397]    076D: 5B                                    pop bx
+[ 398]        :                                       
+[ 399]    076E: 5D                                    pop bp
+[ 400]        :                                       
+[ 401]    076F: C3                                    ret
+[ 402]        :                                       endp
+[ 403]        :                                       ends
+[ 404]        :                                       
+[ 405]        :                                       end start ; set entry point and stop the assembler.
+[ 406]        :                                       
  
 ===================================================================================================
  
@@ -458,7 +534,7 @@ EXE HEADER - bytes from 0000 to 01FF inclusive.
 
 0000: 4D      -   exe signature (M)
 0001: 5A      -   exe signature (Z)
-0002: 1F      -   bytes on last page (l.byte)
+0002: 70      -   bytes on last page (l.byte)
 0003: 01      -   bytes on last page (h.byte)
 0004: 05      -   512 byte pages in file (l.byte)
 0005: 00      -   512 byte pages in file (h.byte)
@@ -474,8 +550,8 @@ EXE HEADER - bytes from 0000 to 01FF inclusive.
 000F: 00      -   SS - stack segment (h.byte)
 0010: 00      -   SP - stack pointer (l.byte)
 0011: 01      -   SP - stack pointer (h.byte)
-0012: 0E      -   check sum (l.byte)
-0013: AE      -   check sum (h.byte)
+0012: 11      -   check sum (l.byte)
+0013: 42      -   check sum (h.byte)
 0014: 00      -   IP - instruction pointer (l.byte)
 0015: 00      -   IP - instruction pointer (h.byte)
 0016: 60      -   CS - code segment (l.byte)
