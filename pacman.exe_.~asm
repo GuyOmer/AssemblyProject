@@ -29,7 +29,7 @@ MazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #"
 MazeLine23 db "#######################################################","$"
 
 ;STUIPD MAZE
-SMazeLine1  db "#######################################################",0dh, 0ah
+SMazeLine1  db "%######################################################",0dh, 0ah
 SMazeLine2  db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
 SMazeLine3  db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
 SMazeLine4  db "# P ####### . ######### . ### . ######### . ####### P #",0dh, 0ah
@@ -111,6 +111,10 @@ mov bp,sp
 push ax
 push cx
 push dx
+
+mov al, 0     ;set active page 0
+mov ah, 05h
+int 10h       ;set page
 
 lea dx, SMazeLine1  ;prints lines 1-12
 mov ah, 9
@@ -352,34 +356,45 @@ push cx
 push dx
 
 call GetKeyStroke   ;returns in AH which key was pressed (Up\Right\Down\Left)
+push ax
 
+mov al, ' '
+mov bl, 00h         ;set color to black
+mov bh, 0           ;set page 0
+mov cx, 1           ;print ' ' only once
+
+mov ah, 09h
+int 10h             ;remove pacman spirit from maze
+
+pop ax
 call SetCourse      ;sets cursor at desired coordinates
 ;call CheckPosition  ;checks desired coordinates for game elements (walls, points, ghosts...)
 ;iff walls returns W, points  P (at AH)  >>Include in SetCourse<<
 
-cmp al, 'W'
+cmp al, '#'         ;if wall
 JE SkipMovement
-cmp al, 'P'
+cmp al, '.'         ;if point
 JE PointsEarned
+
+JMP Normal
 
 PointsEarned:
 mov al, Points
 dec al
 mov Points, al
 
-mov bh, 0           ; sets page to 0
+Normal:
 
-mov al, ' '
-mov bl, 00h         ;set color to black
-mov cx, 0           ;print ' ' only once
+mov dh, PlayerRow ;sets dx as pacman's new position
+mov dl, PlayerCol
 
-mov ah, 09h
-int 10h             ;remove pacman spirit from maze
-
+mov ah, 2
+int 10h             ;re-sets cursor position verfied location
 
 mov al, '@'         ;sets pacman spirit
 mov bl, 0ch         ;sets color to light red
-mov cx, 0           ;print pacman only once
+mov bh, 0           ;sets page to 0
+mov cx, 1           ;print pacman only once
 
 mov ah, 09h
 int 10h             ;re-place pacman spirit at maze
@@ -421,6 +436,8 @@ cmp ah, 'D'
 JE SCDown
 cmp ah, 'L'
 JE SCLeft
+
+JMP ContSC
 
 SCUp:
 dec dh

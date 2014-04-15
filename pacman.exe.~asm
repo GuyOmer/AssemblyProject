@@ -28,9 +28,36 @@ MazeLine21 db "# . ################### . ### . ################### . #"
 MazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #"
 MazeLine23 db "#######################################################","$"
 
-;pacmans coordinates
-PlayerRow db ?
-PlayerCol db ?
+;STUIPD MAZE
+SMazeLine1  db "%######################################################",0dh, 0ah
+SMazeLine2  db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
+SMazeLine3  db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
+SMazeLine4  db "# P ####### . ######### . ### . ######### . ####### P #",0dh, 0ah
+SMazeLine5  db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #",0dh, 0ah
+SMazeLine6  db "# . ####### . ### . ############### . ### . ####### . #",0dh, 0ah
+SMazeLine7  db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #",0dh, 0ah
+SMazeLine8  db "####### . # . #########   ###   ######### . # . #######",0dh, 0ah
+SMazeLine9  db "####### . # . ###                     ### . # . #######",0dh, 0ah
+SMazeLine10 db "####### . # . ###   ##### - - #####   ### . # . #######",0dh, 0ah
+SMazeLine11 db "####### .   . ###   #   H H H H   #   ### . # . #######",0dh, 0ah
+SMazeLine12 db "####### . # . ###   #   H H H H   #   ### . # . #######",0dh, 0ah,"$"
+SMazeLine13 db "####### . # . ###   ###############   ### . # . #######",0dh, 0ah
+SMazeLine14 db "####### . # . ###          @          ### . # . #######",0dh, 0ah
+SMazeLine15 db "####### . # . ###   ##################### . # . #######",0dh, 0ah
+SMazeLine16 db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
+SMazeLine17 db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
+SMazeLine18 db "# P . . ### . . . . . . .  . . . . . . .. . ### . . P #",0dh, 0ah
+SMazeLine19 db "##### . ### . ### . ############### . ### . ### . #####",0dh, 0ah
+SMazeLine20 db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #",0dh, 0ah
+SMazeLine21 db "# . ################### . ### . ################### . #",0dh, 0ah
+SMazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #",0dh, 0ah
+SMazeLine23 db "#######################################################",0dh, 0ah,"$"
+
+
+
+;pacman's initial coordinates
+PlayerRow db 13
+PlayerCol db 27
 
 ;number of . to collect
 Points db 224
@@ -58,11 +85,14 @@ mov ch, 32
 mov ah, 1
 int 10h     ;removes blinking cursor
 
-call PrintMaze
+;call PrintMaze
+
+call StuipdPrintMaze ;fast maze prinitng for debugging
 
 T1:
 call PlayerMove
 JMP T1
+
 ; wait for any key....
 mov ah, 1
 int 21h
@@ -70,12 +100,44 @@ int 21h
 mov ax, 4c00h ; exit to operating system.
 int 21h
 
+proc StuipdPrintMaze
+;  /**
+;  * proc prints maze without colors,
+;  * for swift print for debug purposes
+;  **/
+push bp
+mov bp,sp
+
+push ax
+push cx
+push dx
+
+mov al, 0     ;set active page 0
+mov ah, 05h
+int 10h       ;set page
+
+lea dx, SMazeLine1  ;prints lines 1-12
+mov ah, 9
+int 21h
+
+lea dx, SMazeLine13 ;print lines 12-23
+int 21h
+
+pop dx
+pop cx
+pop ax
+
+pop bp
+ret
+endp
+
 proc PrintMaze
 ;/**
 ;  * This proc prints the whole maze,
 ;  * and colors is according to its chars:
 ;  * # - Blue, . - Yellow, @ - Orange
 ;  * Maze Dimensions: 46x24 Chars
+;  * Emulator prints maze in 14.27 seconds
 ;**/
 
 push bp
@@ -99,6 +161,7 @@ cmp MazeLine1[si], '@'
 JE Orange
 
 mov bl, 00h               ;set color black
+
 JMP ResumePrint
 
 Blue:
@@ -134,6 +197,11 @@ ret
 endp
 
 proc MoveCursor
+;  /**
+;  * proc moves cursor according to maze printing,
+;  * e.g: moves right by default, and down when printing the last
+;  * char of a line
+;  **/
 push bp
 mov bp,sp
 
@@ -173,14 +241,16 @@ endp
 
 
 proc GetKeyStroke
+;  /**
+;  * proc reads keyboard key
+;  * clears buffer post reading
+;  * uses Halt proc to give 1 seconds delay
+;  **/
 push bp
 mov bp, sp
 
 push cx
 push dx
-
-;mov ax, 0c00h  ;ah = 0ch, al = 00h, so no input is attempted by int
-;int 21h        ;flushes keyboard buffer
 
 call Halt
 
@@ -219,10 +289,10 @@ mov ah, 'L'
 JMP ContGK
 
 ContGK:
-
+push ax
 mov ax, 0c00h  ;ah = 0ch, al = 00h, so no input is attempted by int
 int 21h        ;flushes keyboard buffer
-
+pop ax
 NoStroke:
 
 pop dx
@@ -235,6 +305,11 @@ ret
 endp
 
 proc Halt
+;  /**
+;  * proc delays programs by 1 sec
+;  * uses system times to measure time
+;  * system time is in clicks, ~18 clicks = 1 second
+;  **/
 
 push bp
 mov bp, sp
@@ -266,6 +341,12 @@ ret
 endp
 
 proc PlayerMove
+;  /**
+;  * proc moves pacman spirit
+;  * gets movement direction with GetKeyStroke
+;  * checks validity of movement with SetCourse and CheckLocation
+;  **/
+
 push bp
 mov bp, sp
 
@@ -275,34 +356,45 @@ push cx
 push dx
 
 call GetKeyStroke   ;returns in AH which key was pressed (Up\Right\Down\Left)
+push ax
 
+mov al, ' '
+mov bl, 00h         ;set color to black
+mov bh, 0           ;set page 0
+mov cx, 1           ;print ' ' only once
+
+mov ah, 09h
+int 10h             ;remove pacman spirit from maze
+
+pop ax
 call SetCourse      ;sets cursor at desired coordinates
 ;call CheckPosition  ;checks desired coordinates for game elements (walls, points, ghosts...)
 ;iff walls returns W, points  P (at AH)  >>Include in SetCourse<<
 
-cmp al, 'W'
+cmp al, '#'         ;if wall
 JE SkipMovement
-cmp al, 'P'
+cmp al, '.'         ;if point
 JE PointsEarned
+
+JMP Normal
 
 PointsEarned:
 mov al, Points
 dec al
 mov Points, al
 
-mov bh, 0           ; sets page to 0
+Normal:
 
-mov al, ' '
-mov bl, 00h         ;set color to black
-mov cx, 0           ;print ' ' only once
+mov dh, PlayerRow ;sets dx as pacman's new position
+mov dl, PlayerCol
 
-mov ah, 09h
-int 10h             ;remove pacman spirit from maze
-
+mov ah, 2
+int 10h             ;re-sets cursor position verfied location
 
 mov al, '@'         ;sets pacman spirit
 mov bl, 0ch         ;sets color to light red
-mov cx, 0           ;print pacman only once
+mov bh, 0           ;sets page to 0
+mov cx, 1           ;print pacman only once
 
 mov ah, 09h
 int 10h             ;re-place pacman spirit at maze
@@ -344,6 +436,8 @@ cmp ah, 'D'
 JE SCDown
 cmp ah, 'L'
 JE SCLeft
+
+JMP ContSC
 
 SCUp:
 dec dh
