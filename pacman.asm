@@ -3,7 +3,7 @@
 data segment
 ; add your data here!
 
-
+;the maze
 MazeLine1  db "#######################################################"
 MazeLine2  db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #"
 MazeLine3  db "# . ####### . ######### . ### . ######### . ####### . #"
@@ -28,6 +28,13 @@ MazeLine21 db "# . ################### . ### . ################### . #"
 MazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #"
 MazeLine23 db "#######################################################","$"
 
+;pacmans coordinates
+PlayerRow db ?
+PlayerCol db ?
+
+;number of . to collect
+Points db 224
+
 ends
 
 stack segment
@@ -43,15 +50,13 @@ mov es, ax
 
 ; add your code here
 
-mov al, 03h ;set onsole mode (24X79)
+mov al, 03h ;set onsole mode (24x79)
 mov ah, 0
 int 10h
 
 mov ch, 32
 mov ah, 1
 int 10h     ;removes blinking cursor
-
-call GetKeystroke
 
 call PrintMaze
 
@@ -67,7 +72,7 @@ int 21h
 proc PrintMaze
 ;/**
 ;  * This proc prints the whole maze,
-;  * and colors is according to chars:
+;  * and colors is according to its chars:
 ;  * # - Blue, . - Yellow, @ - Orange
 ;  * Maze Dimensions: 46x24 Chars
 ;**/
@@ -197,19 +202,19 @@ proc GetKeyStroke
     
     ;not required, debug and simplifaction only!
     Up:
-        mov ah, 'u'
+        mov ah, 'U'
         JMP ContGK
     
     Right:
-        mov ah, 'r'
+        mov ah, 'R'
         JMP ContGK
     
     Down:
-        mov ah, 'd'
+        mov ah, 'D'
         JMP ContGK
     
     Left:
-        mov ah, 'l'
+        mov ah, 'L'
         JMP ContGK
     
     ContGK:
@@ -257,6 +262,66 @@ proc Halt
     pop bp
     
     ret   
+endp
+
+proc PlayerMove
+    push bp
+    mov bp, sp
+    
+    push ax
+    push bx
+    push cx
+    push dx
+    
+    mov dh, PlayerRow
+    mov dl, PlayerCol
+     
+    mov ah, 2
+    int 10h      ;sets cursor position at pacman position
+    
+
+    call GetKeyStroke   ;returns in AH which key was pressed (Up\Right\Down\Left)
+    
+    ;call SetCourse      ;sets cursor at deseired coordinates
+    ;call CheckPosition  ;checks deseired coordinates for game elements (walls, points, ghosts...)
+                        ;iff walls returns W, points  P (at AH)  >>Include in SetCourse<<
+    
+    cmp ah, 'W'
+    JE SkipMovement
+    cmp ah, 'P'
+    JE PointsEarned
+    
+    PointsEarned:
+    mov al, Points
+    dec al
+    mov Points, al
+    
+    
+    mov al, ' '
+    mov bl, 00h         ;set color to black
+    mov cx, 0           ;print ' ' only once
+     
+    mov ah, 09h
+    int 10h             ;remove pacman spirit from maze
+    
+    
+    mov al, '@'         ;sets pacman spirit
+    mov bl, 0ch         ;sets color to light red
+    mov cx, 0           ;print pacman only once
+    
+    mov ah, 09h
+    int 10h             ;re-place pacman at maze
+    
+    SkipMovement:
+    
+    pop dx
+    pop cx 
+    pop bx
+    pop ax
+    
+    pop bp
+    
+    ret
 endp
 
 ends
