@@ -59,6 +59,8 @@ MazeLine23 db "#######################################################","$"
 PlayerRow db 13
 PlayerCol db 27
 
+LastMove db ?
+
 ;number of . to collect
 Points db 224
 
@@ -289,11 +291,18 @@ proc GetKeyStroke
         JMP ContGK
     
     ContGK:
+    
+        mov LastMove, ah ;saves movement
         push ax
-        mov ax, 0c00h  ;ah = 0ch, al = 00h, so no input is attempted by int
-        int 21h        ;flushes keyboard buffer
+        mov ax, 0c00h    ;ah = 0ch, al = 00h, so no input is attempted by int
+        int 21h          ;flushes keyboard buffer
         pop ax
+        JMP FinishGK
+        
     NoStroke:
+        mov ah, LastMove
+    
+    FinishGK:
     
     pop dx
     pop cx
@@ -345,18 +354,27 @@ proc PlayerMove
     ;  * proc moves pacman spirit
     ;  * gets movement direction with GetKeyStroke
     ;  * checks validity of movement with SetCourse and CheckLocation
+    ;  *
+    ;  * proc is recursive , so last direction of movement is always kept (in AH)
+    ;  * proc's input: last direction of movement (AH), output: new direction of movement
     ;  **/ 
      
     push bp
     mov bp, sp
     
-    push ax
+    ;push ax
     push bx
     push cx
     push dx
- 
+    
+    mov dh, PlayerRow   ;sets dx as pacman's new position
+    mov dl, PlayerCol
+                         
+    mov ah, 2
+    int 10h             ;sets cursor at pacma's current location
+    
     call GetKeyStroke   ;returns in AH which key was pressed (Up\Right\Down\Left)
-    push ax
+    push ax             ;save AX for after pacman spirit deletion
        
     mov al, ' '
     mov bl, 00h         ;set color to black
@@ -366,13 +384,11 @@ proc PlayerMove
     mov ah, 09h
     int 10h             ;remove pacman spirit from maze 
     
-    pop ax 
+    pop ax              ;retrieves AX
+    
     call SetCourse      ;sets cursor at desired coordinates
    ;call CheckPosition  ;checks desired coordinates for game elements (walls, points, ghosts...)
                         ;iff walls returns W, points  P (at AH)  >>Include in SetCourse<<
-    
-    cmp al, '#'         ;if wall
-    JE SkipMovement
     cmp al, '.'         ;if point
     JE PointsEarned
     
@@ -385,8 +401,10 @@ proc PlayerMove
     
     Normal:
     
-    mov dh, PlayerRow ;sets dx as pacman's new position
+    mov dh, PlayerRow   ;sets dx as pacman's new position
     mov dl, PlayerCol
+    
+    push ax             ;saves AX so last direction of movement will be kept
     
     mov ah, 2
     int 10h             ;re-sets cursor position verfied location
@@ -399,12 +417,14 @@ proc PlayerMove
     mov ah, 09h
     int 10h             ;re-place pacman spirit at maze
     
+    pop ax              ;retrieves  AX (last direction of movement)
+    
     SkipMovement:
     
     pop dx
     pop cx 
     pop bx
-    pop ax
+    ;pop ax
     
     pop bp
     
@@ -451,15 +471,19 @@ proc SetCourse
     SCLeft:
         dec dl
         
-    ContSC:         
+    ContSC:
+    push ax             ;maintains ax
     mov ah, 2
     int 10h             ;sets cursor position at desired location
+    ;pop ax              ;retrieves ax
         
     call CheckLocation  ;checks coordinates for game elements
                         ;returns char at AL, attribute at AH
     
     cmp al, '#'         ; if wall denies movement in desired direction
     JE RejectNewCords
+    
+    pop ax
     
     mov PlayerRow ,dh 
     mov PlayerCol ,dl ;updates pacman's position
