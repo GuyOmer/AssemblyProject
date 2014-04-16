@@ -254,7 +254,7 @@ mov bp, sp
 push cx
 push dx
 
-call Halt
+;call Halt
 
 mov ah, 01h
 int 16h        ;read from buffer
@@ -529,6 +529,88 @@ pop bx
 
 pop bp
 
+ret
+endp
+
+proc RandomGen
+;  /**
+;  * proc genrate pseudorandom numbers using XORshift
+;  * http://en.wikipedia.org/wiki/Xorshift
+;  * re-implmanted for 16-bit (see xorshift.c)
+;  * Random numbers range from 0-3, and returned in dx
+;  * ^ - XOR, >>/<< shift
+;  **/
+
+push bp
+mov bp, sp
+
+push ax
+push bx
+push cx
+push si
+
+mov ah, 0     ;gets system time
+int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
+mov bx, 256   ;y - arbitrary picked
+mov si, 0     ;t - value holder
+
+
+
+mov si, ax
+shl ax, 11   ;x ^ (x << 11)
+xor si, ax
+
+mov ax, bx   ;x = y
+mov bx, cx   ;y = z
+mov cx, dx   ;z = w
+
+mov ax, dx
+shr ax, 19   ;w ^ (w >> 19)
+xor dx, ax
+
+xor dx, si   ;...^ t
+
+mov ax, si
+shr ax, 8    ;...^ (t >> 8)
+xor dx, ax
+
+call Mod
+
+pop si
+pop cx
+pop bx
+pop ax
+
+pop bp
+
+ret
+endp
+
+proc Mod
+;  /**
+;  * proc preforms modulo by 4 for DX (needs to be passed by caller)
+;  * returns moduled value in dx
+;  *
+;  * Due the large numbers divison take place on a 32-bit
+;  * REG, to eliminate risk of overflow
+;  **/
+push bp
+mov bp, sp
+
+push ax
+push bx
+
+mov ax, dx  ;ax is the less significant
+mov dx, 0
+mov bx, 4
+
+div bx      ;dl contains the divisor
+;reminder of divison is kept in DX
+
+pop bp
+
+pop bx
+pop ax
 ret
 endp
 ends

@@ -52,12 +52,13 @@ SMAZELINE23              	009D9     	1         	VAR       	data
 PLAYERROW                	00A13     	1         	VAR       	data      
 PLAYERCOL                	00A14     	1         	VAR       	data      
 LASTMOVE                 	00A15     	1         	VAR       	data      
-POINTS                   	00A16     	1         	VAR       	data      
-RES                      	00A17     	1         	VAR       	data      
-STACK                    	000A3     	-5        	SEGMENT   	(ITSELF)  
-CODE                     	000B3     	-5        	SEGMENT   	(ITSELF)  
+AIROW                    	00A16     	1         	VAR       	data      
+AICOL                    	00A17     	1         	VAR       	data      
+POINTS                   	00A18     	1         	VAR       	data      
+STACK                    	000A2     	-5        	SEGMENT   	(ITSELF)  
+CODE                     	000B2     	-5        	SEGMENT   	(ITSELF)  
 START                    	00000     	-1        	LABEL     	code      
-T1                       	00019     	-1        	LABEL     	code      
+GAME                     	00016     	-1        	LABEL     	code      
 STUIPDPRINTMAZE          	00027     	-1        	NEAR      	code      
 PRINTMAZE                	00044     	-1        	NEAR      	code      
 PRINT                    	0004E     	-1        	LABEL     	code      
@@ -91,10 +92,10 @@ CONTSC                   	00199     	-1        	LABEL     	code
 REJECTNEWCORDS           	001B0     	-1        	LABEL     	code      
 FINISHSC                 	001B6     	-1        	LABEL     	code      
 CHECKLOCATION            	001BA     	-1        	NEAR      	code      
-RANDOMGEN                	001C7     	-1        	NEAR      	code      
-RAND                     	001D3     	-1        	LABEL     	code      
-MOD                      	0024C     	-1        	NEAR      	code      
+AIMOVE                   	001C7     	-1        	NEAR      	code      
+RANDOMGEN                	001CD     	-1        	NEAR      	code      
+MOD                      	00247     	-1        	NEAR      	code      
 ===================================================================================================
-[ 16/04/2014  --  16:01:35 ] 
+[ 16/04/2014  --  16:31:10 ] 
 < END >
  

@@ -40,7 +40,7 @@ SMazeLine8  db "####### . # . #########   ###   ######### . # . #######",0dh, 0a
 SMazeLine9  db "####### . # . ###                     ### . # . #######",0dh, 0ah
 SMazeLine10 db "####### . # . ###   ##### - - #####   ### . # . #######",0dh, 0ah
 SMazeLine11 db "####### .   . ###   #   H H H H   #   ### . # . #######",0dh, 0ah
-SMazeLine12 db "####### . # . ###   #   H H H H   #   ### . # . #######",0dh, 0ah,"$"
+SMazeLine12 db "####### . # . ###   #   & & & &   #   ### . # . #######",0dh, 0ah,"$"
 SMazeLine13 db "####### . # . ###   ###############   ### . # . #######",0dh, 0ah
 SMazeLine14 db "####### . # . ###          @          ### . # . #######",0dh, 0ah
 SMazeLine15 db "####### . # . ###   ##################### . # . #######",0dh, 0ah
@@ -61,11 +61,12 @@ PlayerCol db 27
 
 LastMove db ?
 
+;AIs' initial coordinates
+AIRow db 13
+AICol db 27
+
 ;number of . to collect
 Points db 224
-
-;test
-res db 10 dup(?)
 
 ends
 
@@ -82,11 +83,6 @@ mov es, ax
 
 ; add your code here
 
-;test segment
-call RandomGen
-
-;end test segment
-
 mov al, 03h ;set console's mode (24x79)
 mov ah, 0
 int 10h
@@ -99,9 +95,10 @@ int 10h     ;removes blinking cursor
 
 call StuipdPrintMaze ;fast maze prinitng for debugging
 
-T1:
+Game:
 call PlayerMove
-JMP T1
+call AIMove
+JMP Game
 
 ; wait for any key....
 mov ah, 1
@@ -540,12 +537,22 @@ pop bp
 ret
 endp
 
+proc AIMove
+push bp
+mov bp, sp
+
+mov dh, 4
+
+
+ret
+endp
+
 proc RandomGen
 ;  /**
-;  * proc genrate random numbers using XORshift
+;  * proc genrate pseudorandom numbers using XORshift
 ;  * http://en.wikipedia.org/wiki/Xorshift
 ;  * re-implmanted for 16-bit (see xorshift.c)
-;  *
+;  * Random numbers range from 0-3, and returned in dx
 ;  * ^ - XOR, >>/<< shift
 ;  **/
 
@@ -555,23 +562,12 @@ mov bp, sp
 push ax
 push bx
 push cx
-push dx
 push si
-push di
 
-mov di, 0
-RAND:
-
-
-;arbitrary picked numbers
-mov ah, 0
-int 1ah
-
-;mov ax, 5    ;x
-mov bx, 256  ;y
-;mov cx, 6552 ;z
-;mov dx, 15   ;w
-mov si, 0    ;t
+mov ah, 0     ;gets system time
+int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
+mov bx, 256   ;y - arbitrary picked
+mov si, 0     ;t - value holder
 
 
 
@@ -590,18 +586,18 @@ xor dx, ax
 xor dx, si   ;...^ t
 
 mov ax, si
-shr ax, 8
+shr ax, 8    ;...^ (t >> 8)
 xor dx, ax
 
 call Mod
 
-mov res[di], dl
-inc di
+pop si
+pop cx
+pop bx
+pop ax
 
-cmp di, 10
-JNE RAND
+pop bp
 
-popa
 ret
 endp
 

@@ -40,7 +40,7 @@ MazeLine23 db "#######################################################","$"
     SMazeLine9  db "####### . # . ###                     ### . # . #######",0dh, 0ah
     SMazeLine10 db "####### . # . ###   ##### - - #####   ### . # . #######",0dh, 0ah
     SMazeLine11 db "####### .   . ###   #   H H H H   #   ### . # . #######",0dh, 0ah
-    SMazeLine12 db "####### . # . ###   #   H H H H   #   ### . # . #######",0dh, 0ah,"$"
+    SMazeLine12 db "####### . # . ###   #   & & & &   #   ### . # . #######",0dh, 0ah,"$"
     SMazeLine13 db "####### . # . ###   ###############   ### . # . #######",0dh, 0ah
     SMazeLine14 db "####### . # . ###          @          ### . # . #######",0dh, 0ah
     SMazeLine15 db "####### . # . ###   ##################### . # . #######",0dh, 0ah
@@ -59,7 +59,14 @@ MazeLine23 db "#######################################################","$"
 PlayerRow db 13
 PlayerCol db 27
 
-LastMove db ?
+LastMove  db ?
+
+;AIs' initial coordinates
+    ;AI: 0 |1 |2 |3
+AIRow db 11,11,11,11
+AICol db 24,26,28,30
+
+LastAIMove db 1,1,1,1
 
 ;number of . to collect
 Points db 224
@@ -91,9 +98,10 @@ int 10h     ;removes blinking cursor
  
 call StuipdPrintMaze ;fast maze prinitng for debugging
  
-T1:
+Game:
 call PlayerMove
-JMP T1
+call AIMove
+JMP Game
 
 ; wait for any key....
 mov ah, 1
@@ -247,6 +255,10 @@ proc GetKeyStroke
     ;  * proc reads keyboard key
     ;  * clears buffer post reading
     ;  * uses Halt proc to give 1 seconds delay
+    ;  *
+    ;  * lastest movement direction is kept on memory
+    ;  * and always used unless can't be used\newer direction
+    ;  * therefore Implementing a recursive-like approach
     ;  **/
     push bp
     mov bp, sp
@@ -357,7 +369,6 @@ proc PlayerMove
     ;  * gets movement direction with GetKeyStroke
     ;  * checks validity of movement with SetCourse and CheckLocation
     ;  *
-    ;  * proc is recursive , so last direction of movement is always kept (in AH)
     ;  * proc's input: last direction of movement (AH), output: new direction of movement
     ;  **/ 
      
@@ -532,9 +543,114 @@ proc CheckLocation
     ret     
 endp
 
+proc AIMove
+    push bp
+    mov bp, sp
+    
+    
+    mov si, 0
+    
+    4AIs:
+    mov dh, AIRow[si] 
+    mov dl, AICol[si]  ;AI's cords
+    
+    call AICrawl    
+    
+    inc si    
+    cmp si, 4
+    JNE 4AIS
+    
+    ret
+endp
+
+proc AICrawl
+    ;  /**                                                       
+    ;  * proc checks if certain AI can move
+    ;  * up, down, left or right
+    ;  * if more than 2 direction are avilable or lastest movement
+    ;  * direction is unavilable a new direction of movement will be genrated
+    ;  *
+    ;  * proc recives current AI on SI, and his cords on DX
+    ;  * BL binary of possbile directions, BH number of possible directions
+    ;  **/
+    push bp
+    mov bp ,sp
+    
+    push ax
+    push bx
+    push dx
+    
+    mov bx, 0
+    
+    dec dh
+    mov ah, 2
+    int 10h             ;position cursor above AI
+    
+    call CheckLocation  ;stores char at AL, attribute at AH
+    cmp al, '#'
+    JE UpBlock
+    add bl, 00000001b   ;up is good
+    inc bh
+    UpBlock:
+    inc dh              ;return to orignial cords
+     
+     
+    inc dl
+    mov ah, 2
+    int 10h             ;position cursor right to AI
+    
+    call CheckLocation  ;stores char at AL, attribute at AH
+    cmp al, '#'
+    JE RightBlock
+    add bl, 00000010b   ;right is good
+    inc bh
+    RightBlock:
+    dec dl
+    
+    
+    inc dh
+    mov ah, 2
+    int 10h             ;position cursor below to AI
+    
+    call CheckLocation  ;stores char at AL, attribute at AH
+    cmp al, '#'
+    JE DownBlock
+    add bl, 00000100b   ;down is good
+    inc bh
+    DownBlock:
+    dec dh
+    
+    
+    dec dl
+    mov ah, 2
+    int 10h             ;position cursor left to AI
+    
+    call CheckLocation  ;stores char at AL, attribute at AH
+    cmp al, '#'
+    JE LeftBlock
+    add bl, 00001000b   ;left is good
+    inc bh
+    LeftBlock:
+    inc dl
+    
+    push bx 
+    and bl, LastAIMove[si]
+    cmp bl, LastAIMove[si]
+    pop bx
+    JE LastMoveBad          ;cant move in last direction 
+     
+    cmp bh, 2           ;only 2 possible directions
+    JE ContAC           ;means 
+    
+    cmp bh, 3           ;3\4 directions available
+    JGE Crossing
+    
+    ret    
+endp
+
 proc RandomGen
-    ;  /**
-    ;  * proc genrate random numbers using XORshift
+    ;  /**                                                       
+    ;  * proc genrate pseudorandom numbers using XORshift
     ;  * http://en.wikipedia.org/wiki/Xorshift
     ;  * re-implmanted for 16-bit (see xorshift.c)
     ;  * Random numbers range from 0-3, and returned in dx
