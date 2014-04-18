@@ -67,7 +67,7 @@ AIRow db 11,11,11,11
 AICol db 24,26,28,30
 
 LastAIMove db 1,1,1,1
-
+LastOn db 4 dup('.')
 ;number of . to collect
 Points db 224
 
@@ -100,7 +100,7 @@ call StuipdPrintMaze ;fast maze prinitng for debugging
  
 Game:
 call PlayerMove
-;call AIMove
+call AIMove
 JMP Game
 
 ; wait for any key....
@@ -350,7 +350,7 @@ proc Halt
     Counter:
         int 1ah      ;get system time
         sub dx, bx
-        cmp dx, 19   ;19 clicks > 1 second
+        cmp dx, 12   ;12 clicks ~ 2/3 second
     JNGE Counter ;if dx !>= 19
 
     pop dx
@@ -547,18 +547,27 @@ proc AIMove
     push bp
     mov bp, sp
     
+    push dx
+    push si
     
     mov si, 0
     
-    4AIs:
+    AIs:
     mov dh, AIRow[si] 
     mov dl, AICol[si]  ;AI's cords
     
-    call AICrawl    
+    call AIDelete
+    call AICrawl
+    call PlaceAI    
     
     inc si    
-    cmp si, 4
-    JNE 4AIS
+    cmp si, 04h
+    JNE AIs
+    
+    pop si
+    pop dx
+    
+    pop bp
     
     ret
 endp
@@ -580,7 +589,6 @@ proc AICrawl
     
     push ax
     push bx
-    push dx
     
     mov bx, 0
     
@@ -646,6 +654,7 @@ proc AICrawl
     JE LastMoveGood          ;can move in last direction 
                                                       
     NewMove:
+    push dx
     call RandomGen
     
     cmp dx, 0
@@ -657,9 +666,11 @@ proc AICrawl
     cmp dx, 3
     JE TryLeft       ;left was randomised
     
+    pop dx
     JMP NewMove      ;fail-safe, incase of bad random number
     
     TryUp:
+    pop dx
     push bx
     and bl, 00000001b    ;check if up direction is possible
     cmp bl, 00000001b
@@ -670,6 +681,7 @@ proc AICrawl
     JMP GoodNewMove
     
     TryRight:
+    pop dx
     push bx
     and bl, 00000010b    ;check if right direction is possible
     cmp bl, 00000010b
@@ -680,6 +692,7 @@ proc AICrawl
     JMP GoodNewMove
     
     TryDown:
+    pop dx
     push bx
     and bl, 00000100b    ;check if down direction is possible
     cmp bl, 00000100b
@@ -690,6 +703,7 @@ proc AICrawl
     JMP GoodNewMove
     
     TryLeft:
+    pop dx
     push bx
     and bl, 00001000b    ;check if left direction is possible
     cmp bl, 00001000b
@@ -698,18 +712,113 @@ proc AICrawl
     dec dl               ;set new position
     
     JMP GoodNewMove
+    
      
+    LastMoveGood:        ;intrdouces double checking, but reduces code required
+    push dx              ;not required, only used to keep stack correct due to Try*
+    mov bl, LastAIMove[si]
      
+    cmp bl, 00000001b    ;check if last direction was up
+    JE TryUp
      
-    LastMoveGood:
-    ;TODO
+    cmp bl, 00000010b    ;check if last direction was right
+    JE TryRight
+       
+    cmp bl, 00000100b    ;check if last direction was down
+    JE TryDown
+      
+    cmp bl, 00001000b    ;check if last direction was left
+    JE TryLeft
     
     GoodNewMove:
     mov AIRow[si], dh
     mov AICol[si], dl 
     
-     
-     
+    pop bx
+    pop ax 
+    
+    pop bx 
+    ret    
+endp
+
+proc AIDelete
+    ;  /**                                                       
+    ;  * proc removes AI spirit from board,
+    ;  * and re-print the block the exsited on the cords
+    ;  *
+    ;  * proc recives current AI on SI, and his cords on DX
+    ;  **/
+    push bp
+    mov bp, sp
+    
+    push ax
+    push bx 
+    push cx
+    
+    mov bh, 0                ;set page
+	mov ah, 2
+	int 10h                  ;sets cursor on current AI position
+   
+    mov al, LastOn[si]
+    
+    cmp al, '.'              ;checks what was on the block before
+    JE RetYellow             ;and colors it accordingly
+    
+    
+    RetYellow:
+            mov bl, 0eh      ;set color yellow
+            JMP ResumeDelete
+            
+    ResumeDelete:
+    mov cx, 1                ;print only once
+    mov ah, 09h              ;prints stepped-on-block back
+    int 10h                 
+    
+    pop cx
+    pop bx
+    pop ax
+    
+    pop bp
+    
+    ret    
+endp
+
+proc PlaceAI
+    ;  /**                                                       
+    ;  * proc places AI's spirit on it's new location,
+    ;  * and saves the block the AI is stepping on
+    ;  *
+    ;  * proc recives current AI on SI, and his new cords on DX
+    ;  **/
+    
+    push bp
+    mov bp, sp
+    
+    push ax
+    push bx
+    push cx
+    
+    mov bh, 0                ;set page
+	mov ah, 2
+	int 10h                  ;sets cursor on next AI position
+	
+	call CheckLocation       ;reads current position data (al=char, ah=artb)
+	
+	mov LastOn[si], al       ;stores stepped-on block for future retrieval
+	
+    mov al, '&'              
+    mov bl, 0dh              ;set color light magneta
+    mov cx, 1                ;print only once
+    
+    mov ah, 09h
+    int 10h                  ;print AI spirit
+    
+    pop cx
+    pop bx
+    pop ax
+    
+    pop bp
+    
     ret    
 endp
 
