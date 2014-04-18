@@ -2,7 +2,7 @@ EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
  
 pacman.exe_ -- emu8086 assembler version: 4.08  
  
-[ 16/04/2014  --  16:31:10 ] 
+[ 16/04/2014  --  20:52:27 ] 
  
 ===================================================================================================
 [LINE]     LOC: MACHINE CODE                          SOURCE
@@ -253,19 +253,22 @@ pacman.exe_ -- emu8086 assembler version: 4.08
 [  59]    0A13: 0D                                    PlayerRow db 13
 [  60]    0A14: 1B                                    PlayerCol db 27
 [  61]        :                                       
-[  62]    0A15: 00                                    LastMove db ?
+[  62]    0A15: 00                                    LastMove  db ?
 [  63]        :                                       
 [  64]        :                                       ;AIs' initial coordinates
-[  65]    0A16: 0D                                    AIRow db 13
-[  66]    0A17: 1B                                    AICol db 27
-[  67]        :                                       
-[  68]        :                                       ;number of . to collect
-[  69]    0A18: E0                                    Points db 224
+[  65]        :                                       ;AI: 0 |1 |2 |3
+[  66]    0A16: 0B 0B 0B 0B                           AIRow db 11,11,11,11
+[  67]    0A1A: 18 1A 1C 1E                           AICol db 24,26,28,30
+[  68]        :                                       
+[  69]    0A1E: 01 01 01 01                           LastAIMove db 1,1,1,1
 [  70]        :                                       
-[  71]        :                                       ends
-[  72]        :                                       
-[  73]        :                                       stack segment
-[  74]    0A20: 00 00 00 00 00 00 00 00 00 00 00 00   dw   128  dup(0)
+[  71]        :                                       ;number of . to collect
+[  72]    0A22: E0                                    Points db 224
+[  73]        :                                       
+[  74]        :                                       ends
+[  75]        :                                       
+[  76]        :                                       stack segment
+[  77]    0A30: 00 00 00 00 00 00 00 00 00 00 00 00   dw   128  dup(0)
                 00 00 00 00 00 00 00 00 00 00 00 00 
                 00 00 00 00 00 00 00 00 00 00 00 00 
                 00 00 00 00 00 00 00 00 00 00 00 00 
@@ -287,571 +290,669 @@ pacman.exe_ -- emu8086 assembler version: 4.08
                 00 00 00 00 00 00 00 00 00 00 00 00 
                 00 00 00 00 00 00 00 00 00 00 00 00 
                 00 00 00 00                         
-[  75]        :                                       ends
-[  76]        :                                       
-[  77]        :                                       code segment
-[  78]    0B20:                                       start:
-[  79]        :                                       ; set segment registers:
-[  80]    0B20: B8 00 00                              mov ax, data
-[  81]    0B23: 8E D8                                 mov ds, ax
-[  82]    0B25: 8E C0                                 mov es, ax
-[  83]        :                                       
-[  84]        :                                       ; add your code here
-[  85]        :                                       
-[  86]    0B27: B0 03                                 mov al, 03h ;set console's mode (24x79)
-[  87]    0B29: B4 00                                 mov ah, 0
-[  88]    0B2B: CD 10                                 int 10h
-[  89]        :                                       
-[  90]    0B2D: B5 20                                 mov ch, 32
-[  91]    0B2F: B4 01                                 mov ah, 1
-[  92]    0B31: CD 10                                 int 10h     ;removes blinking cursor
-[  93]        :                                       
-[  94]        :                                       ;call PrintMaze
-[  95]        :                                       
-[  96]    0B33: E8 11 00                              call StuipdPrintMaze ;fast maze prinitng for debugging
-[  97]        :                                       
-[  98]    0B36:                                       Game:
-[  99]    0B36: E8 F8 00                              call PlayerMove
-[ 100]    0B39: E8 AB 01                              call AIMove
-[ 101]    0B3C: EB F8                                 JMP Game
-[ 102]        :                                       
-[ 103]        :                                       ; wait for any key....
-[ 104]    0B3E: B4 01                                 mov ah, 1
-[ 105]    0B40: CD 21                                 int 21h
-[ 106]        :                                       
-[ 107]    0B42: B8 00 4C                              mov ax, 4c00h ; exit to operating system.
-[ 108]    0B45: CD 21                                 int 21h
+[  78]        :                                       ends
+[  79]        :                                       
+[  80]        :                                       code segment
+[  81]    0B30:                                       start:
+[  82]        :                                       ; set segment registers:
+[  83]    0B30: B8 00 00                              mov ax, data
+[  84]    0B33: 8E D8                                 mov ds, ax
+[  85]    0B35: 8E C0                                 mov es, ax
+[  86]        :                                       
+[  87]        :                                       ; add your code here
+[  88]        :                                       
+[  89]    0B37: B0 03                                 mov al, 03h ;set console's mode (24x79)
+[  90]    0B39: B4 00                                 mov ah, 0
+[  91]    0B3B: CD 10                                 int 10h
+[  92]        :                                       
+[  93]    0B3D: B5 20                                 mov ch, 32
+[  94]    0B3F: B4 01                                 mov ah, 1
+[  95]    0B41: CD 10                                 int 10h     ;removes blinking cursor
+[  96]        :                                       
+[  97]    0B43: E8 2B 00                              call PrintMaze
+[  98]        :                                       
+[  99]        :                                       ;call StuipdPrintMaze ;fast maze prinitng for debugging
+[ 100]        :                                       
+[ 101]    0B46:                                       Game:
+[ 102]    0B46: E8 F5 00                              call PlayerMove
+[ 103]        :                                       ;call AIMove
+[ 104]    0B49: EB FB                                 JMP Game
+[ 105]        :                                       
+[ 106]        :                                       ; wait for any key....
+[ 107]    0B4B: B4 01                                 mov ah, 1
+[ 108]    0B4D: CD 21                                 int 21h
 [ 109]        :                                       
-[ 110]    0B47:                                       proc StuipdPrintMaze
-[ 111]        :                                       ;  /**
-[ 112]        :                                       ;  * proc prints maze without colors,
-[ 113]        :                                       ;  * for swift print for debug purposes
-[ 114]        :                                       ;  **/
-[ 115]    0B47: 55                                    push bp
-[ 116]    0B48: 8B EC                                 mov bp,sp
-[ 117]        :                                       
-[ 118]    0B4A: 50                                    push ax
-[ 119]    0B4B: 51                                    push cx
-[ 120]    0B4C: 52                                    push dx
-[ 121]        :                                       
-[ 122]    0B4D: B0 00                                 mov al, 0     ;set active page 0
-[ 123]    0B4F: B4 05                                 mov ah, 05h
-[ 124]    0B51: CD 10                                 int 10h       ;set page
-[ 125]        :                                       
-[ 126]    0B53: BA F2 04                              	lea dx, SMazeLine1  ;prints lines 1-12
-[ 127]    0B56: B4 09                                 	mov ah, 9
-[ 128]    0B58: CD 21                                 	int 21h
-[ 129]        :                                       	
-[ 130]    0B5A: BA 9F 07                              	lea dx, SMazeLine13 ;print lines 12-23
-[ 131]    0B5D: CD 21                                 	int 21h
+[ 110]    0B4F: B8 00 4C                              mov ax, 4c00h ; exit to operating system.
+[ 111]    0B52: CD 21                                 int 21h
+[ 112]        :                                       
+[ 113]    0B54:                                       proc StuipdPrintMaze
+[ 114]        :                                       ;  /**
+[ 115]        :                                       ;  * proc prints maze without colors,
+[ 116]        :                                       ;  * for swift print for debug purposes
+[ 117]        :                                       ;  **/
+[ 118]    0B54: 55                                    push bp
+[ 119]    0B55: 8B EC                                 mov bp,sp
+[ 120]        :                                       
+[ 121]    0B57: 50                                    push ax
+[ 122]    0B58: 51                                    push cx
+[ 123]    0B59: 52                                    push dx
+[ 124]        :                                       
+[ 125]    0B5A: B0 00                                 mov al, 0     ;set active page 0
+[ 126]    0B5C: B4 05                                 mov ah, 05h
+[ 127]    0B5E: CD 10                                 int 10h       ;set page
+[ 128]        :                                       
+[ 129]    0B60: BA F2 04                              	lea dx, SMazeLine1  ;prints lines 1-12
+[ 130]    0B63: B4 09                                 	mov ah, 9
+[ 131]    0B65: CD 21                                 	int 21h
 [ 132]        :                                       	
-[ 133]    0B5F: 5A                                    	pop dx
-[ 134]    0B60: 59                                    	pop cx
-[ 135]    0B61: 58                                    	pop ax
-[ 136]        :                                       	
-[ 137]    0B62: 5D                                    	pop bp
-[ 138]    0B63: C3                                    ret
-[ 139]        :                                       endp
-[ 140]        :                                       
-[ 141]    0B64:                                       proc PrintMaze
-[ 142]        :                                       ;/**
-[ 143]        :                                       ;  * This proc prints the whole maze,
-[ 144]        :                                       ;  * and colors is according to its chars:
-[ 145]        :                                       ;  * # - Blue, . - Yellow, @ - Orange
-[ 146]        :                                       ;  * Maze Dimensions: 46x24 Chars
-[ 147]        :                                       ;  * Emulator prints maze in 14.27 seconds
-[ 148]        :                                       ;**/
-[ 149]        :                                       
-[ 150]    0B64: 55                                    push bp
-[ 151]    0B65: 8B EC                                 mov bp,sp
+[ 133]    0B67: BA 9F 07                              	lea dx, SMazeLine13 ;print lines 12-23
+[ 134]    0B6A: CD 21                                 	int 21h
+[ 135]        :                                       	
+[ 136]    0B6C: 5A                                    	pop dx
+[ 137]    0B6D: 59                                    	pop cx
+[ 138]    0B6E: 58                                    	pop ax
+[ 139]        :                                       	
+[ 140]    0B6F: 5D                                    	pop bp
+[ 141]    0B70: C3                                    ret
+[ 142]        :                                       endp
+[ 143]        :                                       
+[ 144]    0B71:                                       proc PrintMaze
+[ 145]        :                                       ;/**
+[ 146]        :                                       ;  * This proc prints the whole maze,
+[ 147]        :                                       ;  * and colors is according to its chars:
+[ 148]        :                                       ;  * # - Blue, . - Yellow, @ - Orange
+[ 149]        :                                       ;  * Maze Dimensions: 46x24 Chars
+[ 150]        :                                       ;  * Emulator prints maze in 14.27 seconds
+[ 151]        :                                       ;**/
 [ 152]        :                                       
-[ 153]    0B67: 50                                    push ax
-[ 154]    0B68: 53                                    push bx
-[ 155]    0B69: 51                                    push cx
-[ 156]    0B6A: 56                                    push si
-[ 157]        :                                       
-[ 158]    0B6B: BE FF FF                              mov si, -1
-[ 159]    0B6E:                                       print:
-[ 160]    0B6E: 46                                    inc si
-[ 161]    0B6F: 8A 04                                 mov al, MazeLine1[si]     ;get char to print
-[ 162]        :                                       
-[ 163]    0B71: 80 3C 23                              cmp MazeLine1[si], '#'
-[ 164]    0B74: 74 0E                                 JE Blue
-[ 165]    0B76: 80 3C 2E                              cmp MazeLine1[si], '.'
-[ 166]    0B79: 74 0D                                 JE Yellow
-[ 167]    0B7B: 80 3C 40                              cmp MazeLine1[si], '@'
-[ 168]    0B7E: 74 0C                                 JE Orange
-[ 169]        :                                       
-[ 170]    0B80: B3 00                                 mov bl, 00h               ;set color black
-[ 171]        :                                       
-[ 172]    0B82: EB 0C                                 JMP ResumePrint
-[ 173]        :                                       
-[ 174]    0B84:                                       Blue:
-[ 175]    0B84: B3 99                                 mov bl, 99h           ;set color light blue
-[ 176]    0B86: EB 08                                 JMP ResumePrint
-[ 177]        :                                       
-[ 178]    0B88:                                       Yellow:
-[ 179]    0B88: B3 0E                                 mov bl, 0eh           ;set color yellow
-[ 180]    0B8A: EB 04                                 JMP ResumePrint
-[ 181]        :                                       
-[ 182]    0B8C:                                       Orange:
-[ 183]    0B8C: B3 0C                                 mov bl, 0ch           ;set color light red
-[ 184]    0B8E: EB 00                                 JMP ResumePrint
-[ 185]        :                                       
-[ 186]    0B90:                                       ResumePrint:
-[ 187]    0B90: B9 01 00                              mov cx, 1             ;how many times to print
-[ 188]    0B93: B4 09                                 mov ah, 09h
-[ 189]    0B95: CD 10                                 int 10h               ;print char
-[ 190]        :                                       
-[ 191]    0B97: E8 0B 00                              call MoveCursor
-[ 192]        :                                       
-[ 193]    0B9A: 80 3C 24                              cmp MazeLine1[si], '$'    ;print char untill terminator ('$')
-[ 194]    0B9D: 75 CF                                 JNE print
+[ 153]    0B71: 55                                    push bp
+[ 154]    0B72: 8B EC                                 mov bp,sp
+[ 155]        :                                       
+[ 156]    0B74: 50                                    push ax
+[ 157]    0B75: 53                                    push bx
+[ 158]    0B76: 51                                    push cx
+[ 159]    0B77: 56                                    push si
+[ 160]        :                                       
+[ 161]    0B78: BE FF FF                              mov si, -1
+[ 162]    0B7B:                                       print:
+[ 163]    0B7B: 46                                    inc si
+[ 164]    0B7C: 8A 04                                 mov al, MazeLine1[si]     ;get char to print
+[ 165]        :                                       
+[ 166]    0B7E: 80 3C 23                              cmp MazeLine1[si], '#'
+[ 167]    0B81: 74 0E                                 JE Blue
+[ 168]    0B83: 80 3C 2E                              cmp MazeLine1[si], '.'
+[ 169]    0B86: 74 0D                                 JE Yellow
+[ 170]    0B88: 80 3C 40                              cmp MazeLine1[si], '@'
+[ 171]    0B8B: 74 0C                                 JE Orange
+[ 172]        :                                       
+[ 173]    0B8D: B3 00                                 mov bl, 00h               ;set color black
+[ 174]        :                                       
+[ 175]    0B8F: EB 0C                                 JMP ResumePrint
+[ 176]        :                                       
+[ 177]    0B91:                                       Blue:
+[ 178]    0B91: B3 99                                 mov bl, 99h           ;set color light blue
+[ 179]    0B93: EB 08                                 JMP ResumePrint
+[ 180]        :                                       
+[ 181]    0B95:                                       Yellow:
+[ 182]    0B95: B3 0E                                 mov bl, 0eh           ;set color yellow
+[ 183]    0B97: EB 04                                 JMP ResumePrint
+[ 184]        :                                       
+[ 185]    0B99:                                       Orange:
+[ 186]    0B99: B3 0C                                 mov bl, 0ch           ;set color light red
+[ 187]    0B9B: EB 00                                 JMP ResumePrint
+[ 188]        :                                       
+[ 189]    0B9D:                                       ResumePrint:
+[ 190]    0B9D: B9 01 00                              mov cx, 1             ;how many times to print
+[ 191]    0BA0: B4 09                                 mov ah, 09h
+[ 192]    0BA2: CD 10                                 int 10h               ;print char
+[ 193]        :                                       
+[ 194]    0BA4: E8 0B 00                              call MoveCursor
 [ 195]        :                                       
-[ 196]    0B9F: 5E                                    pop si
-[ 197]    0BA0: 5B                                    pop bx
-[ 198]    0BA1: 59                                    pop cx
-[ 199]    0BA2: 58                                    pop ax
-[ 200]        :                                       
-[ 201]    0BA3: 5D                                    pop bp
-[ 202]        :                                       
-[ 203]    0BA4: C3                                    ret
-[ 204]        :                                       endp
+[ 196]    0BA7: 80 3C 24                              cmp MazeLine1[si], '$'    ;print char untill terminator ('$')
+[ 197]    0BAA: 75 CF                                 JNE print
+[ 198]        :                                       
+[ 199]    0BAC: 5E                                    pop si
+[ 200]    0BAD: 5B                                    pop bx
+[ 201]    0BAE: 59                                    pop cx
+[ 202]    0BAF: 58                                    pop ax
+[ 203]        :                                       
+[ 204]    0BB0: 5D                                    pop bp
 [ 205]        :                                       
-[ 206]    0BA5:                                       proc MoveCursor
-[ 207]        :                                       ;  /**
-[ 208]        :                                       ;  * proc moves cursor according to maze printing,
-[ 209]        :                                       ;  * e.g: moves right by default, and down when printing the last
-[ 210]        :                                       ;  * char of a line
-[ 211]        :                                       ;  **/
-[ 212]    0BA5: 55                                    push bp
-[ 213]    0BA6: 8B EC                                 mov bp,sp
-[ 214]        :                                       
-[ 215]    0BA8: 50                                    push ax
-[ 216]    0BA9: 53                                    push bx
-[ 217]    0BAA: 51                                    push cx
-[ 218]    0BAB: 52                                    push dx
-[ 219]        :                                       
-[ 220]        :                                       
-[ 221]    0BAC: B4 03                                 mov ah, 03h
-[ 222]    0BAE: CD 10                                 int 10h             ;get cursor position. uses bx,cx,dx
+[ 206]    0BB1: C3                                    ret
+[ 207]        :                                       endp
+[ 208]        :                                       
+[ 209]    0BB2:                                       proc MoveCursor
+[ 210]        :                                       ;  /**
+[ 211]        :                                       ;  * proc moves cursor according to maze printing,
+[ 212]        :                                       ;  * e.g: moves right by default, and down when printing the last
+[ 213]        :                                       ;  * char of a line
+[ 214]        :                                       ;  **/
+[ 215]    0BB2: 55                                    push bp
+[ 216]    0BB3: 8B EC                                 mov bp,sp
+[ 217]        :                                       
+[ 218]    0BB5: 50                                    push ax
+[ 219]    0BB6: 53                                    push bx
+[ 220]    0BB7: 51                                    push cx
+[ 221]    0BB8: 52                                    push dx
+[ 222]        :                                       
 [ 223]        :                                       
-[ 224]    0BB0: 80 FA 36                              cmp dl, 54          ;print new line after 55 chars
-[ 225]    0BB3: 75 06                                 JNE NextCol
+[ 224]    0BB9: B4 03                                 mov ah, 03h
+[ 225]    0BBB: CD 10                                 int 10h             ;get cursor position. uses bx,cx,dx
 [ 226]        :                                       
-[ 227]    0BB5: FE C6                                 inc dh              ;new line
-[ 228]    0BB7: B2 00                                 mov dl, 0
-[ 229]    0BB9: EB 02                                 JMP MC
-[ 230]        :                                       
-[ 231]    0BBB:                                       NextCol:
-[ 232]    0BBB: FE C2                                 inc dl          ;move cursor foward
+[ 227]    0BBD: 80 FA 36                              cmp dl, 54          ;print new line after 55 chars
+[ 228]    0BC0: 75 06                                 JNE NextCol
+[ 229]        :                                       
+[ 230]    0BC2: FE C6                                 inc dh              ;new line
+[ 231]    0BC4: B2 00                                 mov dl, 0
+[ 232]    0BC6: EB 02                                 JMP MC
 [ 233]        :                                       
-[ 234]    0BBD:                                       MC:
-[ 235]    0BBD: B7 00                                 mov bh, 0       ;page number
-[ 236]    0BBF: B4 02                                 mov ah, 2
-[ 237]    0BC1: CD 10                                 int 10h         ;set cursor position
-[ 238]        :                                       
-[ 239]    0BC3: 5A                                    pop dx
-[ 240]    0BC4: 59                                    pop cx
-[ 241]    0BC5: 5B                                    pop bx
-[ 242]    0BC6: 58                                    pop ax
-[ 243]        :                                       
-[ 244]    0BC7: 5D                                    pop bp
-[ 245]        :                                       
-[ 246]    0BC8: C3                                    ret
-[ 247]        :                                       endp
+[ 234]    0BC8:                                       NextCol:
+[ 235]    0BC8: FE C2                                 inc dl          ;move cursor foward
+[ 236]        :                                       
+[ 237]    0BCA:                                       MC:
+[ 238]    0BCA: B7 00                                 mov bh, 0       ;page number
+[ 239]    0BCC: B4 02                                 mov ah, 2
+[ 240]    0BCE: CD 10                                 int 10h         ;set cursor position
+[ 241]        :                                       
+[ 242]    0BD0: 5A                                    pop dx
+[ 243]    0BD1: 59                                    pop cx
+[ 244]    0BD2: 5B                                    pop bx
+[ 245]    0BD3: 58                                    pop ax
+[ 246]        :                                       
+[ 247]    0BD4: 5D                                    pop bp
 [ 248]        :                                       
-[ 249]        :                                       
-[ 250]    0BC9:                                       proc GetKeyStroke
-[ 251]        :                                       ;  /**
-[ 252]        :                                       ;  * proc reads keyboard key
-[ 253]        :                                       ;  * clears buffer post reading
-[ 254]        :                                       ;  * uses Halt proc to give 1 seconds delay
-[ 255]        :                                       ;  **/
-[ 256]    0BC9: 55                                    push bp
-[ 257]    0BCA: 8B EC                                 mov bp, sp
-[ 258]        :                                       
-[ 259]    0BCC: 51                                    push cx
-[ 260]    0BCD: 52                                    push dx
-[ 261]        :                                       
-[ 262]    0BCE: E8 44 00                              call Halt
-[ 263]        :                                       
-[ 264]    0BD1: B4 01                                 mov ah, 01h
-[ 265]    0BD3: CD 16                                 int 16h        ;read from buffer
-[ 266]        :                                       
-[ 267]    0BD5: 74 36                                 JZ NoStroke    ; if ZF = 1, no keystroke was entered, required?
+[ 249]    0BD5: C3                                    ret
+[ 250]        :                                       endp
+[ 251]        :                                       
+[ 252]        :                                       
+[ 253]    0BD6:                                       proc GetKeyStroke
+[ 254]        :                                       ;  /**
+[ 255]        :                                       ;  * proc reads keyboard key
+[ 256]        :                                       ;  * clears buffer post reading
+[ 257]        :                                       ;  * uses Halt proc to give 1 seconds delay
+[ 258]        :                                       ;  *
+[ 259]        :                                       ;  * lastest movement direction is kept on memory
+[ 260]        :                                       ;  * and always used unless can't be used\newer direction
+[ 261]        :                                       ;  * therefore Implementing a recursive-like approach
+[ 262]        :                                       ;  **/
+[ 263]    0BD6: 55                                    push bp
+[ 264]    0BD7: 8B EC                                 mov bp, sp
+[ 265]        :                                       
+[ 266]    0BD9: 51                                    push cx
+[ 267]    0BDA: 52                                    push dx
 [ 268]        :                                       
-[ 269]    0BD7: 80 3E 15 0A 4E                        cmp LastMove, 'N'
+[ 269]    0BDB: E8 44 00                              call Halt
 [ 270]        :                                       
-[ 271]    0BDC: 80 FC 48                              cmp ah, 48h    ;up key was pressed
-[ 272]    0BDF: 74 0F                                 JE Up
+[ 271]    0BDE: B4 01                                 mov ah, 01h
+[ 272]    0BE0: CD 16                                 int 16h        ;read from buffer
 [ 273]        :                                       
-[ 274]    0BE1: 80 FC 4D                              cmp ah , 4Dh   ;right key was pressed
-[ 275]    0BE4: 74 0E                                 JE Right
-[ 276]        :                                       
-[ 277]    0BE6: 80 FC 50                              cmp ah, 50h    ;down key was pressed
-[ 278]    0BE9: 74 0D                                 JE Down
-[ 279]        :                                       
-[ 280]    0BEB: 80 FC 4B                              cmp ah, 4bh    ;left key was presses
-[ 281]    0BEE: 74 0C                                 JE Left
-[ 282]        :                                       
-[ 283]        :                                       ;not required, debug and simplifaction only!
-[ 284]    0BF0:                                       Up:
-[ 285]    0BF0: B4 55                                 mov ah, 'U'
-[ 286]    0BF2: EB 0C                                 JMP ContGK
-[ 287]        :                                       
-[ 288]    0BF4:                                       Right:
-[ 289]    0BF4: B4 52                                 mov ah, 'R'
-[ 290]    0BF6: EB 08                                 JMP ContGK
-[ 291]        :                                       
-[ 292]    0BF8:                                       Down:
-[ 293]    0BF8: B4 44                                 mov ah, 'D'
-[ 294]    0BFA: EB 04                                 JMP ContGK
-[ 295]        :                                       
-[ 296]    0BFC:                                       Left:
-[ 297]    0BFC: B4 4C                                 mov ah, 'L'
-[ 298]    0BFE: EB 00                                 JMP ContGK
-[ 299]        :                                       
-[ 300]    0C00:                                       ContGK:
-[ 301]        :                                       
-[ 302]    0C00: 88 26 15 0A                           mov LastMove, ah ;saves movement
-[ 303]    0C04: 50                                    push ax
-[ 304]    0C05: B8 00 0C                              mov ax, 0c00h    ;ah = 0ch, al = 00h, so no input is attempted by int
-[ 305]    0C08: CD 21                                 int 21h          ;flushes keyboard buffer
-[ 306]    0C0A: 58                                    pop ax
-[ 307]    0C0B: EB 04                                 JMP FinishGK
+[ 274]    0BE2: 74 36                                 JZ NoStroke    ; if ZF = 1, no keystroke was entered, required?
+[ 275]        :                                       
+[ 276]    0BE4: 80 3E 15 0A 4E                        cmp LastMove, 'N'
+[ 277]        :                                       
+[ 278]    0BE9: 80 FC 48                              cmp ah, 48h    ;up key was pressed
+[ 279]    0BEC: 74 0F                                 JE Up
+[ 280]        :                                       
+[ 281]    0BEE: 80 FC 4D                              cmp ah , 4Dh   ;right key was pressed
+[ 282]    0BF1: 74 0E                                 JE Right
+[ 283]        :                                       
+[ 284]    0BF3: 80 FC 50                              cmp ah, 50h    ;down key was pressed
+[ 285]    0BF6: 74 0D                                 JE Down
+[ 286]        :                                       
+[ 287]    0BF8: 80 FC 4B                              cmp ah, 4bh    ;left key was presses
+[ 288]    0BFB: 74 0C                                 JE Left
+[ 289]        :                                       
+[ 290]        :                                       ;not required, debug and simplifaction only!
+[ 291]    0BFD:                                       Up:
+[ 292]    0BFD: B4 55                                 mov ah, 'U'
+[ 293]    0BFF: EB 0C                                 JMP ContGK
+[ 294]        :                                       
+[ 295]    0C01:                                       Right:
+[ 296]    0C01: B4 52                                 mov ah, 'R'
+[ 297]    0C03: EB 08                                 JMP ContGK
+[ 298]        :                                       
+[ 299]    0C05:                                       Down:
+[ 300]    0C05: B4 44                                 mov ah, 'D'
+[ 301]    0C07: EB 04                                 JMP ContGK
+[ 302]        :                                       
+[ 303]    0C09:                                       Left:
+[ 304]    0C09: B4 4C                                 mov ah, 'L'
+[ 305]    0C0B: EB 00                                 JMP ContGK
+[ 306]        :                                       
+[ 307]    0C0D:                                       ContGK:
 [ 308]        :                                       
-[ 309]    0C0D:                                       NoStroke:
-[ 310]    0C0D: 8A 26 15 0A                           mov ah, LastMove
-[ 311]        :                                       
-[ 312]    0C11:                                       FinishGK:
-[ 313]        :                                       
-[ 314]    0C11: 5A                                    pop dx
-[ 315]    0C12: 59                                    pop cx
-[ 316]        :                                       
-[ 317]    0C13: 5D                                    pop bp
+[ 309]    0C0D: 88 26 15 0A                           mov LastMove, ah ;saves movement
+[ 310]    0C11: 50                                    push ax
+[ 311]    0C12: B8 00 0C                              mov ax, 0c00h    ;ah = 0ch, al = 00h, so no input is attempted by int
+[ 312]    0C15: CD 21                                 int 21h          ;flushes keyboard buffer
+[ 313]    0C17: 58                                    pop ax
+[ 314]    0C18: EB 04                                 JMP FinishGK
+[ 315]        :                                       
+[ 316]    0C1A:                                       NoStroke:
+[ 317]    0C1A: 8A 26 15 0A                           mov ah, LastMove
 [ 318]        :                                       
-[ 319]    0C14: C3                                    ret
+[ 319]    0C1E:                                       FinishGK:
 [ 320]        :                                       
-[ 321]        :                                       endp
-[ 322]        :                                       
-[ 323]    0C15:                                       proc Halt
-[ 324]        :                                       ;  /**
-[ 325]        :                                       ;  * proc delays programs by 1 sec
-[ 326]        :                                       ;  * uses system times to measure time
-[ 327]        :                                       ;  * system time is in clicks, ~18 clicks = 1 second
-[ 328]        :                                       ;  **/
+[ 321]    0C1E: 5A                                    pop dx
+[ 322]    0C1F: 59                                    pop cx
+[ 323]        :                                       
+[ 324]    0C20: 5D                                    pop bp
+[ 325]        :                                       
+[ 326]    0C21: C3                                    ret
+[ 327]        :                                       
+[ 328]        :                                       endp
 [ 329]        :                                       
-[ 330]    0C15: 55                                    push bp
-[ 331]    0C16: 8B EC                                 mov bp, sp
-[ 332]        :                                       
-[ 333]    0C18: 50                                    push ax
-[ 334]    0C19: 53                                    push bx
-[ 335]    0C1A: 51                                    push cx
-[ 336]    0C1B: 52                                    push dx
-[ 337]        :                                       
-[ 338]    0C1C: B4 00                                 mov ah, 00h
-[ 339]    0C1E: CD 1A                                 int 1ah      ;get system time -> CX:DX, ~18 clicks = 1 second
-[ 340]        :                                       
-[ 341]    0C20: 8B DA                                 mov bx, dx   ; keep starting time
-[ 342]        :                                       
-[ 343]    0C22:                                       Counter:
-[ 344]    0C22: CD 1A                                 int 1ah      ;get system time
-[ 345]    0C24: 2B D3                                 sub dx, bx
-[ 346]    0C26: 83 FA 13                              cmp dx, 19   ;19 clicks > 1 second
-[ 347]    0C29: 7C F7                                 JNGE Counter ;if dx !>= 19
-[ 348]        :                                       
-[ 349]    0C2B: 5A                                    pop dx
-[ 350]    0C2C: 59                                    pop cx
-[ 351]    0C2D: 5B                                    pop bx
-[ 352]    0C2E: 58                                    pop ax
-[ 353]        :                                       
-[ 354]    0C2F: 5D                                    pop bp
+[ 330]    0C22:                                       proc Halt
+[ 331]        :                                       ;  /**
+[ 332]        :                                       ;  * proc delays programs by 1 sec
+[ 333]        :                                       ;  * uses system times to measure time
+[ 334]        :                                       ;  * system time is in clicks, ~18 clicks = 1 second
+[ 335]        :                                       ;  **/
+[ 336]        :                                       
+[ 337]    0C22: 55                                    push bp
+[ 338]    0C23: 8B EC                                 mov bp, sp
+[ 339]        :                                       
+[ 340]    0C25: 50                                    push ax
+[ 341]    0C26: 53                                    push bx
+[ 342]    0C27: 51                                    push cx
+[ 343]    0C28: 52                                    push dx
+[ 344]        :                                       
+[ 345]    0C29: B4 00                                 mov ah, 00h
+[ 346]    0C2B: CD 1A                                 int 1ah      ;get system time -> CX:DX, ~18 clicks = 1 second
+[ 347]        :                                       
+[ 348]    0C2D: 8B DA                                 mov bx, dx   ; keep starting time
+[ 349]        :                                       
+[ 350]    0C2F:                                       Counter:
+[ 351]    0C2F: CD 1A                                 int 1ah      ;get system time
+[ 352]    0C31: 2B D3                                 sub dx, bx
+[ 353]    0C33: 83 FA 13                              cmp dx, 19   ;19 clicks > 1 second
+[ 354]    0C36: 7C F7                                 JNGE Counter ;if dx !>= 19
 [ 355]        :                                       
-[ 356]    0C30: C3                                    ret
-[ 357]        :                                       endp
-[ 358]        :                                       
-[ 359]    0C31:                                       proc PlayerMove
-[ 360]        :                                       ;  /**
-[ 361]        :                                       ;  * proc moves pacman spirit
-[ 362]        :                                       ;  * gets movement direction with GetKeyStroke
-[ 363]        :                                       ;  * checks validity of movement with SetCourse and CheckLocation
-[ 364]        :                                       ;  *
-[ 365]        :                                       ;  * proc is recursive , so last direction of movement is always kept (in AH)
-[ 366]        :                                       ;  * proc's input: last direction of movement (AH), output: new direction of movement
-[ 367]        :                                       ;  **/
-[ 368]        :                                       
-[ 369]    0C31: 55                                    push bp
-[ 370]    0C32: 8B EC                                 mov bp, sp
-[ 371]        :                                       
-[ 372]        :                                       ;push ax
-[ 373]    0C34: 53                                    push bx
-[ 374]    0C35: 51                                    push cx
-[ 375]    0C36: 52                                    push dx
-[ 376]        :                                       
-[ 377]    0C37: 8A 36 13 0A                           mov dh, PlayerRow   ;sets dx as pacman's new position
-[ 378]    0C3B: 8A 16 14 0A                           mov dl, PlayerCol
-[ 379]        :                                       
-[ 380]    0C3F: B4 02                                 mov ah, 2
-[ 381]    0C41: CD 10                                 int 10h             ;sets cursor at pacma's current location
+[ 356]    0C38: 5A                                    pop dx
+[ 357]    0C39: 59                                    pop cx
+[ 358]    0C3A: 5B                                    pop bx
+[ 359]    0C3B: 58                                    pop ax
+[ 360]        :                                       
+[ 361]    0C3C: 5D                                    pop bp
+[ 362]        :                                       
+[ 363]    0C3D: C3                                    ret
+[ 364]        :                                       endp
+[ 365]        :                                       
+[ 366]    0C3E:                                       proc PlayerMove
+[ 367]        :                                       ;  /**
+[ 368]        :                                       ;  * proc moves pacman spirit
+[ 369]        :                                       ;  * gets movement direction with GetKeyStroke
+[ 370]        :                                       ;  * checks validity of movement with SetCourse and CheckLocation
+[ 371]        :                                       ;  *
+[ 372]        :                                       ;  * proc's input: last direction of movement (AH), output: new direction of movement
+[ 373]        :                                       ;  **/
+[ 374]        :                                       
+[ 375]    0C3E: 55                                    push bp
+[ 376]    0C3F: 8B EC                                 mov bp, sp
+[ 377]        :                                       
+[ 378]        :                                       ;push ax
+[ 379]    0C41: 53                                    push bx
+[ 380]    0C42: 51                                    push cx
+[ 381]    0C43: 52                                    push dx
 [ 382]        :                                       
-[ 383]    0C43: E8 83 FF                              call GetKeyStroke   ;returns in AH which key was pressed (Up\Right\Down\Left)
-[ 384]    0C46: 50                                    push ax             ;save AX for after pacman spirit deletion
+[ 383]    0C44: 8A 36 13 0A                           mov dh, PlayerRow   ;sets dx as pacman's new position
+[ 384]    0C48: 8A 16 14 0A                           mov dl, PlayerCol
 [ 385]        :                                       
-[ 386]    0C47: B0 20                                 mov al, ' '
-[ 387]    0C49: B3 00                                 mov bl, 00h         ;set color to black
-[ 388]    0C4B: B7 00                                 mov bh, 0           ;set page 0
-[ 389]    0C4D: B9 01 00                              mov cx, 1           ;print ' ' only once
-[ 390]        :                                       
-[ 391]    0C50: B4 09                                 mov ah, 09h
-[ 392]    0C52: CD 10                                 int 10h             ;remove pacman spirit from maze
-[ 393]        :                                       
-[ 394]    0C54: 58                                    pop ax              ;retrieves AX
-[ 395]        :                                       
-[ 396]    0C55: E8 2E 00                              call SetCourse      ;sets cursor at desired coordinates
-[ 397]        :                                       ;call CheckPosition  ;checks desired coordinates for game elements (walls, points, ghosts...)
-[ 398]        :                                       ;iff walls returns W, points  P (at AH)  >>Include in SetCourse<<
-[ 399]    0C58: 3C 2E                                 cmp al, '.'         ;if point
-[ 400]    0C5A: 74 02                                 JE PointsEarned
+[ 386]    0C4C: B4 02                                 mov ah, 2
+[ 387]    0C4E: CD 10                                 int 10h             ;sets cursor at pacma's current location
+[ 388]        :                                       
+[ 389]    0C50: E8 83 FF                              call GetKeyStroke   ;returns in AH which key was pressed (Up\Right\Down\Left)
+[ 390]    0C53: 50                                    push ax             ;save AX for after pacman spirit deletion
+[ 391]        :                                       
+[ 392]    0C54: B0 20                                 mov al, ' '
+[ 393]    0C56: B3 00                                 mov bl, 00h         ;set color to black
+[ 394]    0C58: B7 00                                 mov bh, 0           ;set page 0
+[ 395]    0C5A: B9 01 00                              mov cx, 1           ;print ' ' only once
+[ 396]        :                                       
+[ 397]    0C5D: B4 09                                 mov ah, 09h
+[ 398]    0C5F: CD 10                                 int 10h             ;remove pacman spirit from maze
+[ 399]        :                                       
+[ 400]    0C61: 58                                    pop ax              ;retrieves AX
 [ 401]        :                                       
-[ 402]    0C5C: EB 08                                 JMP Normal
-[ 403]        :                                       
-[ 404]    0C5E:                                       PointsEarned:
-[ 405]    0C5E: A0 18 0A                              mov al, Points
-[ 406]    0C61: FE C8                                 dec al
-[ 407]    0C63: A2 18 0A                              mov Points, al
-[ 408]        :                                       
-[ 409]    0C66:                                       Normal:
-[ 410]        :                                       
-[ 411]    0C66: 8A 36 13 0A                           mov dh, PlayerRow   ;sets dx as pacman's new position
-[ 412]    0C6A: 8A 16 14 0A                           mov dl, PlayerCol
-[ 413]        :                                       
-[ 414]    0C6E: 50                                    push ax             ;saves AX so last direction of movement will be kept
-[ 415]        :                                       
-[ 416]    0C6F: B4 02                                 mov ah, 2
-[ 417]    0C71: CD 10                                 int 10h             ;re-sets cursor position verfied location
-[ 418]        :                                       
-[ 419]    0C73: B0 40                                 mov al, '@'         ;sets pacman spirit
-[ 420]    0C75: B3 0C                                 mov bl, 0ch         ;sets color to light red
-[ 421]    0C77: B7 00                                 mov bh, 0           ;sets page to 0
-[ 422]    0C79: B9 01 00                              mov cx, 1           ;print pacman only once
-[ 423]        :                                       
-[ 424]    0C7C: B4 09                                 mov ah, 09h
-[ 425]    0C7E: CD 10                                 int 10h             ;re-place pacman spirit at maze
-[ 426]        :                                       
-[ 427]    0C80: 58                                    pop ax              ;retrieves  AX (last direction of movement)
-[ 428]        :                                       
-[ 429]    0C81:                                       SkipMovement:
-[ 430]        :                                       
-[ 431]    0C81: 5A                                    pop dx
-[ 432]    0C82: 59                                    pop cx
-[ 433]    0C83: 5B                                    pop bx
-[ 434]        :                                       ;pop ax
-[ 435]        :                                       
-[ 436]    0C84: 5D                                    pop bp
-[ 437]        :                                       
-[ 438]    0C85: C3                                    ret
-[ 439]        :                                       endp
-[ 440]        :                                       
-[ 441]    0C86:                                       proc SetCourse
-[ 442]        :                                       ;  /**
-[ 443]        :                                       ;  * proc sets cursor at desired location,
-[ 444]        :                                       ;  * checks if movememt s vaild, and updates pacman's Cords
-[ 445]        :                                       ;  **/
+[ 402]    0C62: E8 2E 00                              call SetCourse      ;sets cursor at desired coordinates
+[ 403]        :                                       ;call CheckPosition  ;checks desired coordinates for game elements (walls, points, ghosts...)
+[ 404]        :                                       ;iff walls returns W, points  P (at AH)  >>Include in SetCourse<<
+[ 405]    0C65: 3C 2E                                 cmp al, '.'         ;if point
+[ 406]    0C67: 74 02                                 JE PointsEarned
+[ 407]        :                                       
+[ 408]    0C69: EB 08                                 JMP Normal
+[ 409]        :                                       
+[ 410]    0C6B:                                       PointsEarned:
+[ 411]    0C6B: A0 22 0A                              mov al, Points
+[ 412]    0C6E: FE C8                                 dec al
+[ 413]    0C70: A2 22 0A                              mov Points, al
+[ 414]        :                                       
+[ 415]    0C73:                                       Normal:
+[ 416]        :                                       
+[ 417]    0C73: 8A 36 13 0A                           mov dh, PlayerRow   ;sets dx as pacman's new position
+[ 418]    0C77: 8A 16 14 0A                           mov dl, PlayerCol
+[ 419]        :                                       
+[ 420]    0C7B: 50                                    push ax             ;saves AX so last direction of movement will be kept
+[ 421]        :                                       
+[ 422]    0C7C: B4 02                                 mov ah, 2
+[ 423]    0C7E: CD 10                                 int 10h             ;re-sets cursor position verfied location
+[ 424]        :                                       
+[ 425]    0C80: B0 40                                 mov al, '@'         ;sets pacman spirit
+[ 426]    0C82: B3 0C                                 mov bl, 0ch         ;sets color to light red
+[ 427]    0C84: B7 00                                 mov bh, 0           ;sets page to 0
+[ 428]    0C86: B9 01 00                              mov cx, 1           ;print pacman only once
+[ 429]        :                                       
+[ 430]    0C89: B4 09                                 mov ah, 09h
+[ 431]    0C8B: CD 10                                 int 10h             ;re-place pacman spirit at maze
+[ 432]        :                                       
+[ 433]    0C8D: 58                                    pop ax              ;retrieves  AX (last direction of movement)
+[ 434]        :                                       
+[ 435]    0C8E:                                       SkipMovement:
+[ 436]        :                                       
+[ 437]    0C8E: 5A                                    pop dx
+[ 438]    0C8F: 59                                    pop cx
+[ 439]    0C90: 5B                                    pop bx
+[ 440]        :                                       ;pop ax
+[ 441]        :                                       
+[ 442]    0C91: 5D                                    pop bp
+[ 443]        :                                       
+[ 444]    0C92: C3                                    ret
+[ 445]        :                                       endp
 [ 446]        :                                       
-[ 447]    0C86: 55                                    push bp
-[ 448]    0C87: 8B EC                                 mov bp, sp
-[ 449]        :                                       
-[ 450]    0C89: 53                                    push bx
-[ 451]    0C8A: 52                                    push dx
+[ 447]    0C93:                                       proc SetCourse
+[ 448]        :                                       ;  /**
+[ 449]        :                                       ;  * proc sets cursor at desired location,
+[ 450]        :                                       ;  * checks if movememt s vaild, and updates pacman's Cords
+[ 451]        :                                       ;  **/
 [ 452]        :                                       
-[ 453]    0C8B: B7 00                                 mov bh, 0         ;sets page to 0
-[ 454]        :                                       
-[ 455]    0C8D: 8A 36 13 0A                           mov dh, PlayerRow ;sets dx as pacman's position
-[ 456]    0C91: 8A 16 14 0A                           mov dl, PlayerCol
-[ 457]        :                                       
-[ 458]    0C95: 80 FC 55                              cmp ah, 'U'
-[ 459]    0C98: 74 11                                 JE SCUp
-[ 460]    0C9A: 80 FC 52                              cmp ah, 'R'
-[ 461]    0C9D: 74 10                                 JE SCRight
-[ 462]    0C9F: 80 FC 44                              cmp ah, 'D'
-[ 463]    0CA2: 74 0F                                 JE SCDown
-[ 464]    0CA4: 80 FC 4C                              cmp ah, 'L'
-[ 465]    0CA7: 74 0E                                 JE SCLeft
-[ 466]        :                                       
-[ 467]    0CA9: EB 0E                                 JMP ContSC
-[ 468]        :                                       
-[ 469]    0CAB:                                       SCUp:
-[ 470]    0CAB: FE CE                                 dec dh
-[ 471]    0CAD: EB 0A                                 JMP ContSC
-[ 472]    0CAF:                                       SCRight:
-[ 473]    0CAF: FE C2                                 inc dl
-[ 474]    0CB1: EB 06                                 JMP ContSC
-[ 475]    0CB3:                                       SCDown:
-[ 476]    0CB3: FE C6                                 inc dh
-[ 477]    0CB5: EB 02                                 JMP ContSC
-[ 478]    0CB7:                                       SCLeft:
-[ 479]    0CB7: FE CA                                 dec dl
-[ 480]        :                                       
-[ 481]    0CB9:                                       ContSC:
-[ 482]    0CB9: 50                                    push ax             ;maintains ax
-[ 483]    0CBA: B4 02                                 mov ah, 2
-[ 484]    0CBC: CD 10                                 int 10h             ;sets cursor position at desired location
-[ 485]        :                                       
-[ 486]    0CBE: E8 19 00                              call CheckLocation  ;checks coordinates for game elements
-[ 487]        :                                       ;returns char at AL, attribute at AH
-[ 488]        :                                       
-[ 489]    0CC1: 3C 23                                 cmp al, '#'         ; if wall denies movement in desired direction
-[ 490]    0CC3: 74 0B                                 JE RejectNewCords
+[ 453]    0C93: 55                                    push bp
+[ 454]    0C94: 8B EC                                 mov bp, sp
+[ 455]        :                                       
+[ 456]    0C96: 53                                    push bx
+[ 457]    0C97: 52                                    push dx
+[ 458]        :                                       
+[ 459]    0C98: B7 00                                 mov bh, 0         ;sets page to 0
+[ 460]        :                                       
+[ 461]    0C9A: 8A 36 13 0A                           mov dh, PlayerRow ;sets dx as pacman's position
+[ 462]    0C9E: 8A 16 14 0A                           mov dl, PlayerCol
+[ 463]        :                                       
+[ 464]    0CA2: 80 FC 55                              cmp ah, 'U'
+[ 465]    0CA5: 74 11                                 JE SCUp
+[ 466]    0CA7: 80 FC 52                              cmp ah, 'R'
+[ 467]    0CAA: 74 10                                 JE SCRight
+[ 468]    0CAC: 80 FC 44                              cmp ah, 'D'
+[ 469]    0CAF: 74 0F                                 JE SCDown
+[ 470]    0CB1: 80 FC 4C                              cmp ah, 'L'
+[ 471]    0CB4: 74 0E                                 JE SCLeft
+[ 472]        :                                       
+[ 473]    0CB6: EB 0E                                 JMP ContSC
+[ 474]        :                                       
+[ 475]    0CB8:                                       SCUp:
+[ 476]    0CB8: FE CE                                 dec dh
+[ 477]    0CBA: EB 0A                                 JMP ContSC
+[ 478]    0CBC:                                       SCRight:
+[ 479]    0CBC: FE C2                                 inc dl
+[ 480]    0CBE: EB 06                                 JMP ContSC
+[ 481]    0CC0:                                       SCDown:
+[ 482]    0CC0: FE C6                                 inc dh
+[ 483]    0CC2: EB 02                                 JMP ContSC
+[ 484]    0CC4:                                       SCLeft:
+[ 485]    0CC4: FE CA                                 dec dl
+[ 486]        :                                       
+[ 487]    0CC6:                                       ContSC:
+[ 488]    0CC6: 50                                    push ax             ;maintains ax
+[ 489]    0CC7: B4 02                                 mov ah, 2
+[ 490]    0CC9: CD 10                                 int 10h             ;sets cursor position at desired location
 [ 491]        :                                       
-[ 492]    0CC5: 58                                    pop ax              ;retrieves ax
-[ 493]        :                                       
-[ 494]    0CC6: 88 36 13 0A                           mov PlayerRow ,dh
-[ 495]    0CCA: 88 16 14 0A                           mov PlayerCol ,dl   ;updates pacman's position
-[ 496]        :                                       
-[ 497]    0CCE: EB 06                                 JMP FinishSC
-[ 498]        :                                       
-[ 499]    0CD0:                                       RejectNewCords:
-[ 500]    0CD0: C6 06 15 0A 4E                        mov LastMove, 'N'
-[ 501]        :                                       
-[ 502]        :                                       ;mov dh, PlayerRow
-[ 503]        :                                       ;mov dl, PlayerCol
+[ 492]    0CCB: E8 19 00                              call CheckLocation  ;checks coordinates for game elements
+[ 493]        :                                       ;returns char at AL, attribute at AH
+[ 494]        :                                       
+[ 495]    0CCE: 3C 23                                 cmp al, '#'         ; if wall denies movement in desired direction
+[ 496]    0CD0: 74 0B                                 JE RejectNewCords
+[ 497]        :                                       
+[ 498]    0CD2: 58                                    pop ax              ;retrieves ax
+[ 499]        :                                       
+[ 500]    0CD3: 88 36 13 0A                           mov PlayerRow ,dh
+[ 501]    0CD7: 88 16 14 0A                           mov PlayerCol ,dl   ;updates pacman's position
+[ 502]        :                                       
+[ 503]    0CDB: EB 06                                 JMP FinishSC
 [ 504]        :                                       
-[ 505]        :                                       ;mov ah, 2
-[ 506]        :                                       ;int 10h         ;re-position cursor on pacman
+[ 505]    0CDD:                                       RejectNewCords:
+[ 506]    0CDD: C6 06 15 0A 4E                        mov LastMove, 'N'
 [ 507]        :                                       
-[ 508]    0CD5: 58                                    pop ax
-[ 509]        :                                       
-[ 510]    0CD6:                                       FinishSC:
-[ 511]    0CD6: 5A                                    pop dx
-[ 512]    0CD7: 5B                                    pop bx
+[ 508]        :                                       ;mov dh, PlayerRow
+[ 509]        :                                       ;mov dl, PlayerCol
+[ 510]        :                                       
+[ 511]        :                                       ;mov ah, 2
+[ 512]        :                                       ;int 10h         ;re-position cursor on pacman
 [ 513]        :                                       
-[ 514]    0CD8: 5D                                    pop bp
+[ 514]    0CE2: 58                                    pop ax
 [ 515]        :                                       
-[ 516]    0CD9: C3                                    ret
-[ 517]        :                                       endp
-[ 518]        :                                       
-[ 519]    0CDA:                                       proc CheckLocation
-[ 520]        :                                       ;  /**
-[ 521]        :                                       ;  * proc returns data about current cursor location
-[ 522]        :                                       ;  * char at AL, attribute at AH
-[ 523]        :                                       ;  **/
-[ 524]    0CDA: 55                                    push bp
-[ 525]    0CDB: 8B EC                                 mov bp,sp
-[ 526]        :                                       
-[ 527]    0CDD: 53                                    push bx
-[ 528]        :                                       
-[ 529]    0CDE: B7 00                                 mov bh, 0     ;sets page to 0
-[ 530]    0CE0: B4 08                                 mov ah, 08h   ;reads data of cursor location
-[ 531]    0CE2: CD 10                                 int 10h       ;stores char at AL, attribute at AH
+[ 516]    0CE3:                                       FinishSC:
+[ 517]    0CE3: 5A                                    pop dx
+[ 518]    0CE4: 5B                                    pop bx
+[ 519]        :                                       
+[ 520]    0CE5: 5D                                    pop bp
+[ 521]        :                                       
+[ 522]    0CE6: C3                                    ret
+[ 523]        :                                       endp
+[ 524]        :                                       
+[ 525]    0CE7:                                       proc CheckLocation
+[ 526]        :                                       ;  /**
+[ 527]        :                                       ;  * proc returns data about current cursor location
+[ 528]        :                                       ;  * char at AL, attribute at AH
+[ 529]        :                                       ;  **/
+[ 530]    0CE7: 55                                    push bp
+[ 531]    0CE8: 8B EC                                 mov bp,sp
 [ 532]        :                                       
-[ 533]    0CE4: 5B                                    pop bx
+[ 533]    0CEA: 53                                    push bx
 [ 534]        :                                       
-[ 535]    0CE5: 5D                                    pop bp
-[ 536]        :                                       
-[ 537]    0CE6: C3                                    ret
-[ 538]        :                                       endp
-[ 539]        :                                       
-[ 540]    0CE7:                                       proc AIMove
-[ 541]    0CE7: 55                                    push bp
-[ 542]    0CE8: 8B EC                                 mov bp, sp
-[ 543]        :                                       
-[ 544]    0CEA: B6 04                                 mov dh, 4
+[ 535]    0CEB: B7 00                                 mov bh, 0     ;sets page to 0
+[ 536]    0CED: B4 08                                 mov ah, 08h   ;reads data of cursor location
+[ 537]    0CEF: CD 10                                 int 10h       ;stores char at AL, attribute at AH
+[ 538]        :                                       
+[ 539]    0CF1: 5B                                    pop bx
+[ 540]        :                                       
+[ 541]    0CF2: 5D                                    pop bp
+[ 542]        :                                       
+[ 543]    0CF3: C3                                    ret
+[ 544]        :                                       endp
 [ 545]        :                                       
-[ 546]        :                                       
-[ 547]    0CEC: C3                                    ret
-[ 548]        :                                       endp
-[ 549]        :                                       
-[ 550]    0CED:                                       proc RandomGen
-[ 551]        :                                       ;  /**
-[ 552]        :                                       ;  * proc genrate pseudorandom numbers using XORshift
-[ 553]        :                                       ;  * http://en.wikipedia.org/wiki/Xorshift
-[ 554]        :                                       ;  * re-implmanted for 16-bit (see xorshift.c)
-[ 555]        :                                       ;  * Random numbers range from 0-3, and returned in dx
-[ 556]        :                                       ;  * ^ - XOR, >>/<< shift
-[ 557]        :                                       ;  **/
-[ 558]        :                                       
-[ 559]    0CED: 55                                    push bp
-[ 560]    0CEE: 8B EC                                 mov bp, sp
-[ 561]        :                                       
-[ 562]    0CF0: 50                                    push ax
-[ 563]    0CF1: 53                                    push bx
-[ 564]    0CF2: 51                                    push cx
-[ 565]    0CF3: 56                                    push si
-[ 566]        :                                       
-[ 567]    0CF4: B4 00                                 mov ah, 0     ;gets system time
-[ 568]    0CF6: CD 1A                                 int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
-[ 569]    0CF8: BB 00 01                              mov bx, 256   ;y - arbitrary picked
-[ 570]    0CFB: BE 00 00                              mov si, 0     ;t - value holder
-[ 571]        :                                       
-[ 572]        :                                       
-[ 573]        :                                       
-[ 574]    0CFE: 8B F0                                 mov si, ax
-[ 575]    0D00: D1 E0 D1 E0 D1 E0 D1 E0 D1 E0 D1 E0   shl ax, 11   ;x ^ (x << 11)
+[ 546]        :                                       ;proc AIMove
+[ 547]        :                                       ;    push bp
+[ 548]        :                                       ;    mov bp, sp
+[ 549]        :                                       ;
+[ 550]        :                                       ;
+[ 551]        :                                       ;    mov si, 0
+[ 552]        :                                       ;
+[ 553]        :                                       ;    4AIs:
+[ 554]        :                                       ;    mov dh, AIRow[si]
+[ 555]        :                                       ;    mov dl, AICol[si]  ;AI's cords
+[ 556]        :                                       ;
+[ 557]        :                                       ;    call AICrawl
+[ 558]        :                                       ;
+[ 559]        :                                       ;    inc si
+[ 560]        :                                       ;    cmp si, 4
+[ 561]        :                                       ;    JNE 4AIS
+[ 562]        :                                       ;
+[ 563]        :                                       ;    ret
+[ 564]        :                                       ;endp
+[ 565]        :                                       
+[ 566]        :                                       ;proc AICrawl
+[ 567]        :                                       ;    ;  /**
+[ 568]        :                                       ;    ;  * proc checks if certain AI can move
+[ 569]        :                                       ;    ;  * up, down, left or right
+[ 570]        :                                       ;    ;  * if more than 2 direction are avilable or lastest movement
+[ 571]        :                                       ;    ;  * direction is unavilable a new direction of movement will be genrated
+[ 572]        :                                       ;    ;  *
+[ 573]        :                                       ;    ;  * proc recives current AI on SI, and his cords on DX
+[ 574]        :                                       ;    ;  * BL binary of possbile directions, BH number of possible directions
+[ 575]        :                                       ;    ;  **/
+[ 576]        :                                       ;    push bp
+[ 577]        :                                       ;    mov bp ,sp
+[ 578]        :                                       ;
+[ 579]        :                                       ;    push ax
+[ 580]        :                                       ;    push bx
+[ 581]        :                                       ;    push dx
+[ 582]        :                                       ;
+[ 583]        :                                       ;    mov bx, 0
+[ 584]        :                                       ;
+[ 585]        :                                       ;    dec dh
+[ 586]        :                                       ;    mov ah, 2
+[ 587]        :                                       ;    int 10h             ;position cursor above AI
+[ 588]        :                                       ;
+[ 589]        :                                       ;    call CheckLocation  ;stores char at AL, attribute at AH
+[ 590]        :                                       ;    cmp al, '#'
+[ 591]        :                                       ;    JE UpBlock
+[ 592]        :                                       ;    add bl, 00000001b   ;up is good
+[ 593]        :                                       ;    inc bh
+[ 594]        :                                       ;    UpBlock:
+[ 595]        :                                       ;    inc dh              ;return to orignial cords
+[ 596]        :                                       ;
+[ 597]        :                                       ;
+[ 598]        :                                       ;    inc dl
+[ 599]        :                                       ;    mov ah, 2
+[ 600]        :                                       ;    int 10h             ;position cursor right to AI
+[ 601]        :                                       ;
+[ 602]        :                                       ;    call CheckLocation  ;stores char at AL, attribute at AH
+[ 603]        :                                       ;    cmp al, '#'
+[ 604]        :                                       ;    JE RightBlock
+[ 605]        :                                       ;    add bl, 00000010b   ;right is good
+[ 606]        :                                       ;    inc bh
+[ 607]        :                                       ;    RightBlock:
+[ 608]        :                                       ;    dec dl
+[ 609]        :                                       ;
+[ 610]        :                                       ;
+[ 611]        :                                       ;    inc dh
+[ 612]        :                                       ;    mov ah, 2
+[ 613]        :                                       ;    int 10h             ;position cursor below to AI
+[ 614]        :                                       ;
+[ 615]        :                                       ;    call CheckLocation  ;stores char at AL, attribute at AH
+[ 616]        :                                       ;    cmp al, '#'
+[ 617]        :                                       ;    JE DownBlock
+[ 618]        :                                       ;    add bl, 00000100b   ;down is good
+[ 619]        :                                       ;    inc bh
+[ 620]        :                                       ;    DownBlock:
+[ 621]        :                                       ;    dec dh
+[ 622]        :                                       ;
+[ 623]        :                                       ;
+[ 624]        :                                       ;    dec dl
+[ 625]        :                                       ;    mov ah, 2
+[ 626]        :                                       ;    int 10h             ;position cursor left to AI
+[ 627]        :                                       ;
+[ 628]        :                                       ;    call CheckLocation  ;stores char at AL, attribute at AH
+[ 629]        :                                       ;    cmp al, '#'
+[ 630]        :                                       ;    JE LeftBlock
+[ 631]        :                                       ;    add bl, 00001000b   ;left is good
+[ 632]        :                                       ;    inc bh
+[ 633]        :                                       ;    LeftBlock:
+[ 634]        :                                       ;    inc dl
+[ 635]        :                                       ;
+[ 636]        :                                       ;    push bx
+[ 637]        :                                       ;    and bl, LastAIMove[si]
+[ 638]        :                                       ;    cmp bl, LastAIMove[si]
+[ 639]        :                                       ;    pop bx
+[ 640]        :                                       ;    ;JE LastMoveBad          ;cant move in last direction
+[ 641]        :                                       ;
+[ 642]        :                                       ;    cmp bh, 2           ;only 2 possible directions
+[ 643]        :                                       ;    ;JE ContAC           ;means
+[ 644]        :                                       ;
+[ 645]        :                                       ;    cmp bh, 3           ;3\4 directions available
+[ 646]        :                                       ;    ;JGE Crossing
+[ 647]        :                                       ;
+[ 648]        :                                       ;    ret
+[ 649]        :                                       ;endp
+[ 650]        :                                       
+[ 651]    0CF4:                                       proc RandomGen
+[ 652]        :                                       ;  /**
+[ 653]        :                                       ;  * proc genrate pseudorandom numbers using XORshift
+[ 654]        :                                       ;  * http://en.wikipedia.org/wiki/Xorshift
+[ 655]        :                                       ;  * re-implmanted for 16-bit (see xorshift.c)
+[ 656]        :                                       ;  * Random numbers range from 0-3, and returned in dx
+[ 657]        :                                       ;  * ^ - XOR, >>/<< shift
+[ 658]        :                                       ;  **/
+[ 659]        :                                       
+[ 660]    0CF4: 55                                    push bp
+[ 661]    0CF5: 8B EC                                 mov bp, sp
+[ 662]        :                                       
+[ 663]    0CF7: 50                                    push ax
+[ 664]    0CF8: 53                                    push bx
+[ 665]    0CF9: 51                                    push cx
+[ 666]    0CFA: 56                                    push si
+[ 667]        :                                       
+[ 668]    0CFB: B4 00                                 mov ah, 0     ;gets system time
+[ 669]    0CFD: CD 1A                                 int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
+[ 670]    0CFF: BB 00 01                              mov bx, 256   ;y - arbitrary picked
+[ 671]    0D02: BE 00 00                              mov si, 0     ;t - value holder
+[ 672]        :                                       
+[ 673]        :                                       
+[ 674]        :                                       
+[ 675]    0D05: 8B F0                                 mov si, ax
+[ 676]    0D07: D1 E0 D1 E0 D1 E0 D1 E0 D1 E0 D1 E0   shl ax, 11   ;x ^ (x << 11)
                 D1 E0 D1 E0 D1 E0 D1 E0 D1 E0       
-[ 576]    0D16: 33 F0                                 xor si, ax
-[ 577]        :                                       
-[ 578]    0D18: 8B C3                                 mov ax, bx   ;x = y
-[ 579]    0D1A: 8B D9                                 mov bx, cx   ;y = z
-[ 580]    0D1C: 8B CA                                 mov cx, dx   ;z = w
-[ 581]        :                                       
-[ 582]    0D1E: 8B C2                                 mov ax, dx
-[ 583]    0D20: D1 E8 D1 E8 D1 E8 D1 E8 D1 E8 D1 E8   shr ax, 19   ;w ^ (w >> 19)
+[ 677]    0D1D: 33 F0                                 xor si, ax
+[ 678]        :                                       
+[ 679]    0D1F: 8B C3                                 mov ax, bx   ;x = y
+[ 680]    0D21: 8B D9                                 mov bx, cx   ;y = z
+[ 681]    0D23: 8B CA                                 mov cx, dx   ;z = w
+[ 682]        :                                       
+[ 683]    0D25: 8B C2                                 mov ax, dx
+[ 684]    0D27: D1 E8 D1 E8 D1 E8 D1 E8 D1 E8 D1 E8   shr ax, 19   ;w ^ (w >> 19)
                 D1 E8 D1 E8 D1 E8 D1 E8 D1 E8 D1 E8 
                 D1 E8 D1 E8 D1 E8 D1 E8 D1 E8 D1 E8 
                 D1 E8                               
-[ 584]    0D46: 33 D0                                 xor dx, ax
-[ 585]        :                                       
-[ 586]    0D48: 33 D6                                 xor dx, si   ;...^ t
-[ 587]        :                                       
-[ 588]    0D4A: 8B C6                                 mov ax, si
-[ 589]    0D4C: D1 E8 D1 E8 D1 E8 D1 E8 D1 E8 D1 E8   shr ax, 8    ;...^ (t >> 8)
+[ 685]    0D4D: 33 D0                                 xor dx, ax
+[ 686]        :                                       
+[ 687]    0D4F: 33 D6                                 xor dx, si   ;...^ t
+[ 688]        :                                       
+[ 689]    0D51: 8B C6                                 mov ax, si
+[ 690]    0D53: D1 E8 D1 E8 D1 E8 D1 E8 D1 E8 D1 E8   shr ax, 8    ;...^ (t >> 8)
                 D1 E8 D1 E8                         
-[ 590]    0D5C: 33 D0                                 xor dx, ax
-[ 591]        :                                       
-[ 592]    0D5E: E8 06 00                              call Mod
-[ 593]        :                                       
-[ 594]    0D61: 5E                                    pop si
-[ 595]    0D62: 59                                    pop cx
-[ 596]    0D63: 5B                                    pop bx
-[ 597]    0D64: 58                                    pop ax
-[ 598]        :                                       
-[ 599]    0D65: 5D                                    pop bp
-[ 600]        :                                       
-[ 601]    0D66: C3                                    ret
-[ 602]        :                                       endp
-[ 603]        :                                       
-[ 604]    0D67:                                       proc Mod
-[ 605]        :                                       ;  /**
-[ 606]        :                                       ;  * proc preforms modulo by 4 for DX (needs to be passed by caller)
-[ 607]        :                                       ;  * returns moduled value in dx
-[ 608]        :                                       ;  *
-[ 609]        :                                       ;  * Due the large numbers divison take place on a 32-bit
-[ 610]        :                                       ;  * REG, to eliminate risk of overflow
-[ 611]        :                                       ;  **/
-[ 612]    0D67: 55                                    push bp
-[ 613]    0D68: 8B EC                                 mov bp, sp
-[ 614]        :                                       
-[ 615]    0D6A: 50                                    push ax
-[ 616]    0D6B: 53                                    push bx
-[ 617]        :                                       
-[ 618]    0D6C: 8B C2                                 mov ax, dx  ;ax is the less significant
-[ 619]    0D6E: BA 00 00                              mov dx, 0
-[ 620]    0D71: BB 04 00                              mov bx, 4
-[ 621]        :                                       
-[ 622]    0D74: F7 F3                                 div bx      ;dl contains the divisor
-[ 623]        :                                       ;reminder of divison is kept in DX
-[ 624]        :                                       
-[ 625]    0D76: 5D                                    pop bp
-[ 626]        :                                       
-[ 627]    0D77: 5B                                    pop bx
-[ 628]    0D78: 58                                    pop ax
-[ 629]    0D79: C3                                    ret
-[ 630]        :                                       endp
-[ 631]        :                                       ends
-[ 632]        :                                       
-[ 633]        :                                       end start ; set entry point and stop the assembler.
-[ 634]        :                                       
+[ 691]    0D63: 33 D0                                 xor dx, ax
+[ 692]        :                                       
+[ 693]    0D65: E8 06 00                              call Mod
+[ 694]        :                                       
+[ 695]    0D68: 5E                                    pop si
+[ 696]    0D69: 59                                    pop cx
+[ 697]    0D6A: 5B                                    pop bx
+[ 698]    0D6B: 58                                    pop ax
+[ 699]        :                                       
+[ 700]    0D6C: 5D                                    pop bp
+[ 701]        :                                       
+[ 702]    0D6D: C3                                    ret
+[ 703]        :                                       endp
+[ 704]        :                                       
+[ 705]    0D6E:                                       proc Mod
+[ 706]        :                                       ;  /**
+[ 707]        :                                       ;  * proc preforms modulo by 4 for DX (needs to be passed by caller)
+[ 708]        :                                       ;  * returns moduled value in dx
+[ 709]        :                                       ;  *
+[ 710]        :                                       ;  * Due the large numbers divison take place on a 32-bit
+[ 711]        :                                       ;  * REG, to eliminate risk of overflow
+[ 712]        :                                       ;  **/
+[ 713]    0D6E: 55                                    push bp
+[ 714]    0D6F: 8B EC                                 mov bp, sp
+[ 715]        :                                       
+[ 716]    0D71: 50                                    push ax
+[ 717]    0D72: 53                                    push bx
+[ 718]        :                                       
+[ 719]    0D73: 8B C2                                 mov ax, dx  ;ax is the less significant
+[ 720]    0D75: BA 00 00                              mov dx, 0
+[ 721]    0D78: BB 04 00                              mov bx, 4
+[ 722]        :                                       
+[ 723]    0D7B: F7 F3                                 div bx      ;dl contains the divisor
+[ 724]        :                                       ;reminder of divison is kept in DX
+[ 725]        :                                       
+[ 726]    0D7D: 5D                                    pop bp
+[ 727]        :                                       
+[ 728]    0D7E: 5B                                    pop bx
+[ 729]    0D7F: 58                                    pop ax
+[ 730]    0D80: C3                                    ret
+[ 731]        :                                       endp
+[ 732]        :                                       ends
+[ 733]        :                                       
+[ 734]        :                                       end start ; set entry point and stop the assembler.
+[ 735]        :                                       
  
 ===================================================================================================
  
@@ -859,7 +960,7 @@ EXE HEADER - bytes from 0000 to 01FF inclusive.
 
 0000: 4D      -   exe signature (M)
 0001: 5A      -   exe signature (Z)
-0002: 7A      -   bytes on last page (l.byte)
+0002: 81      -   bytes on last page (l.byte)
 0003: 01      -   bytes on last page (h.byte)
 0004: 08      -   512 byte pages in file (l.byte)
 0005: 00      -   512 byte pages in file (h.byte)
@@ -871,15 +972,15 @@ EXE HEADER - bytes from 0000 to 01FF inclusive.
 000B: 00      -   minimum memory (h.byte)
 000C: FF      -   maximum memory (l.byte)
 000D: FF      -   maximum memory (h.byte)
-000E: A2      -   SS - stack segment (l.byte)
+000E: A3      -   SS - stack segment (l.byte)
 000F: 00      -   SS - stack segment (h.byte)
 0010: 00      -   SP - stack pointer (l.byte)
 0011: 01      -   SP - stack pointer (h.byte)
-0012: 8F      -   check sum (l.byte)
-0013: 4E      -   check sum (h.byte)
+0012: 90      -   check sum (l.byte)
+0013: 79      -   check sum (h.byte)
 0014: 00      -   IP - instruction pointer (l.byte)
 0015: 00      -   IP - instruction pointer (h.byte)
-0016: B2      -   CS - code segment (l.byte)
+0016: B3      -   CS - code segment (l.byte)
 0017: 00      -   CS - code segment (h.byte)
 0018: 1E      -   relocation table adress (l.byte)
 0019: 00      -   relocation table adress (h.byte)
@@ -889,7 +990,7 @@ EXE HEADER - bytes from 0000 to 01FF inclusive.
 001D: 00      -   signature (h.byte)
 001E: 01      -   relocation table - offset inside segment (l.byte)
 001F: 00      -   relocation table - offset inside segment (h.byte)
-0020: B2      -   relocation table - segment anchor (l.byte)
+0020: B3      -   relocation table - segment anchor (l.byte)
 0021: 00      -   relocation table - segment anchor (h.byte)
 0022 to 01FF  -   reserved relocation area  (00) 
 

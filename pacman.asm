@@ -100,7 +100,7 @@ call StuipdPrintMaze ;fast maze prinitng for debugging
  
 Game:
 call PlayerMove
-call AIMove
+;call AIMove
 JMP Game
 
 ; wait for any key....
@@ -570,8 +570,10 @@ proc AICrawl
     ;  * if more than 2 direction are avilable or lastest movement
     ;  * direction is unavilable a new direction of movement will be genrated
     ;  *
+    ;  * BL binary key of possbile directions, BH number of possible directions
+    ;  *
     ;  * proc recives current AI on SI, and his cords on DX
-    ;  * BL binary of possbile directions, BH number of possible directions
+    ;  * proc returns new good cords for AI in DX
     ;  **/
     push bp
     mov bp ,sp
@@ -633,18 +635,81 @@ proc AICrawl
     LeftBlock:
     inc dl
     
+    cmp bh, 3           ;if we are on a crossing (e.g 3 pathes)
+    JGE NewMove             
+                        ;try changing direction    
+    
     push bx 
     and bl, LastAIMove[si]
     cmp bl, LastAIMove[si]
     pop bx
-    JE LastMoveBad          ;cant move in last direction 
+    JE LastMoveGood          ;can move in last direction 
+                                                      
+    NewMove:
+    call RandomGen
+    
+    cmp dx, 0
+    JE TryUp         ;up was randomised
+    cmp dx, 1
+    JE TryRight      ;right was randomised                                            
+    cmp dx, 2
+    JE TryDown       ;down was randomised                                           
+    cmp dx, 3
+    JE TryLeft       ;left was randomised
+    
+    JMP NewMove      ;fail-safe, incase of bad random number
+    
+    TryUp:
+    push bx
+    and bl, 00000001b    ;check if up direction is possible
+    cmp bl, 00000001b
+    pop bx
+    JNE NewMove
+    dec dh               ;set new position
+    
+    JMP GoodNewMove
+    
+    TryRight:
+    push bx
+    and bl, 00000010b    ;check if right direction is possible
+    cmp bl, 00000010b
+    pop bx
+    JNE NewMove
+    inc dl               ;set new position
+    
+    JMP GoodNewMove
+    
+    TryDown:
+    push bx
+    and bl, 00000100b    ;check if down direction is possible
+    cmp bl, 00000100b
+    pop bx
+    JNE NewMove
+    inc dh               ;set new position
+    
+    JMP GoodNewMove
+    
+    TryLeft:
+    push bx
+    and bl, 00001000b    ;check if left direction is possible
+    cmp bl, 00001000b
+    pop bx
+    JNE NewMove
+    dec dl               ;set new position
+    
+    JMP GoodNewMove
      
-    cmp bh, 2           ;only 2 possible directions
-    JE ContAC           ;means 
+     
+     
+    LastMoveGood:
+    ;TODO
     
-    cmp bh, 3           ;3\4 directions available
-    JGE Crossing
+    GoodNewMove:
+    mov AIRow[si], dh
+    mov AICol[si], dl 
     
+     
+     
     ret    
 endp
 
