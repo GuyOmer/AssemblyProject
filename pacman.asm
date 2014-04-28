@@ -29,7 +29,7 @@ MazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #"
 MazeLine23 db "#######################################################","$"
    
    ;STUIPD MAZE
-    SMazeLine1  db "%######################################################",0dh, 0ah
+    SMazeLine1  db "!######################################################",0dh, 0ah
     SMazeLine2  db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
     SMazeLine3  db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
     SMazeLine4  db "# P ####### . ######### . ### . ######### . ####### P #",0dh, 0ah
@@ -531,11 +531,21 @@ proc CheckLocation
     mov bp,sp
     
     push bx
+    push cx  ;test
     
     mov bh, 0     ;sets page to 0
     mov ah, 08h   ;reads data of cursor location
     int 10h       ;stores char at AL, attribute at AH
     
+    ;TEST
+    ;prints read char in white
+    mov bl, 0fh
+    mov cx ,1
+    
+    mov ah, 09h
+    int 10h
+    
+    pop cx ;test
     pop bx
     
     pop bp
@@ -764,6 +774,7 @@ proc AIDelete
     cmp al, '.'              ;checks what was on the block before
     JE RetYellow             ;and colors it accordingly
     
+    JMP ResumeDelete
     
     RetYellow:
             mov bl, 0eh      ;set color yellow
