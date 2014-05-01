@@ -91,8 +91,9 @@ mov ah, 0
 int 10h
 
 mov ch, 32
-mov ah, 1
-int 10h     ;removes blinking cursor
+mov ah, 1    ;removes blinking cursor
+int 10h
+
 
 ;call PrintMaze
 
@@ -531,21 +532,31 @@ push bp
 mov bp,sp
 
 push bx
-push cx  ;test
 
 mov bh, 0     ;sets page to 0
 mov ah, 08h   ;reads data of cursor location
 int 10h       ;stores char at AL, attribute at AH
 
-;TEST
-;prints read char in white
-mov bl, 0fh
-mov cx ,1
 
-mov ah, 09h
+;DEBUG ONLY:
+push ax
+push dx
+mov bh, 0
+mov ah, 03h
 int 10h
+pop dx
+pop ax
+;/DEBUG
 
-pop cx ;test
+;;TEST
+;    ;prints read char in white
+;    mov bl, 0fh
+;    mov cx ,1
+;
+;    mov ah, 09h
+;    int 10h
+;
+;    pop cx ;test
 pop bx
 
 pop bp

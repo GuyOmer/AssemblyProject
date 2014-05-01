@@ -28,30 +28,30 @@ MazeLine21 db "# . ################### . ### . ################### . #"
 MazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #"
 MazeLine23 db "#######################################################","$"
    
-   ;STUIPD MAZE
-    SMazeLine1  db "!######################################################",0dh, 0ah
-    SMazeLine2  db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
-    SMazeLine3  db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
-    SMazeLine4  db "# P ####### . ######### . ### . ######### . ####### P #",0dh, 0ah
-    SMazeLine5  db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #",0dh, 0ah
-    SMazeLine6  db "# . ####### . ### . ############### . ### . ####### . #",0dh, 0ah
-    SMazeLine7  db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #",0dh, 0ah
-    SMazeLine8  db "####### . # . #########   ###   ######### . # . #######",0dh, 0ah
-    SMazeLine9  db "####### . # . ###                     ### . # . #######",0dh, 0ah
-    SMazeLine10 db "####### . # . ###   ##### - - #####   ### . # . #######",0dh, 0ah
-    SMazeLine11 db "####### .   . ###   #   H H H H   #   ### . # . #######",0dh, 0ah
-    SMazeLine12 db "####### . # . ###   #   & & & &   #   ### . # . #######",0dh, 0ah,"$"
-    SMazeLine13 db "####### . # . ###   ###############   ### . # . #######",0dh, 0ah
-    SMazeLine14 db "####### . # . ###          @          ### . # . #######",0dh, 0ah
-    SMazeLine15 db "####### . # . ###   ##################### . # . #######",0dh, 0ah
-    SMazeLine16 db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
-    SMazeLine17 db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
-    SMazeLine18 db "# P . . ### . . . . . . .  . . . . . . .. . ### . . P #",0dh, 0ah
-    SMazeLine19 db "##### . ### . ### . ############### . ### . ### . #####",0dh, 0ah
-    SMazeLine20 db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #",0dh, 0ah
-    SMazeLine21 db "# . ################### . ### . ################### . #",0dh, 0ah
-    SMazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #",0dh, 0ah
-    SMazeLine23 db "#######################################################",0dh, 0ah,"$"
+;STUIPD MAZE
+SMazeLine1  db "!######################################################",0dh, 0ah
+SMazeLine2  db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
+SMazeLine3  db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
+SMazeLine4  db "# P ####### . ######### . ### . ######### . ####### P #",0dh, 0ah
+SMazeLine5  db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #",0dh, 0ah
+SMazeLine6  db "# . ####### . ### . ############### . ### . ####### . #",0dh, 0ah
+SMazeLine7  db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #",0dh, 0ah
+SMazeLine8  db "####### . # . #########   ###   ######### . # . #######",0dh, 0ah
+SMazeLine9  db "####### . # . ###                     ### . # . #######",0dh, 0ah
+SMazeLine10 db "####### . # . ###   ##### - - #####   ### . # . #######",0dh, 0ah
+SMazeLine11 db "####### .   . ###   #   H H H H   #   ### . # . #######",0dh, 0ah
+SMazeLine12 db "####### . # . ###   #   & & & &   #   ### . # . #######",0dh, 0ah,"$"
+SMazeLine13 db "####### . # . ###   ###############   ### . # . #######",0dh, 0ah
+SMazeLine14 db "####### . # . ###          @          ### . # . #######",0dh, 0ah
+SMazeLine15 db "####### . # . ###   ##################### . # . #######",0dh, 0ah
+SMazeLine16 db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
+SMazeLine17 db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
+SMazeLine18 db "# P . . ### . . . . . . .  . . . . . . .. . ### . . P #",0dh, 0ah
+SMazeLine19 db "##### . ### . ### . ############### . ### . ### . #####",0dh, 0ah
+SMazeLine20 db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #",0dh, 0ah
+SMazeLine21 db "# . ################### . ### . ################### . #",0dh, 0ah
+SMazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #",0dh, 0ah
+SMazeLine23 db "#######################################################",0dh, 0ah,"$"
 
 
 
@@ -91,8 +91,9 @@ mov ah, 0
 int 10h
 
 mov ch, 32
-mov ah, 1
-int 10h     ;removes blinking cursor
+mov ah, 1    ;removes blinking cursor
+int 10h    
+
 
 ;call PrintMaze
  
@@ -531,21 +532,31 @@ proc CheckLocation
     mov bp,sp
     
     push bx
-    push cx  ;test
     
     mov bh, 0     ;sets page to 0
     mov ah, 08h   ;reads data of cursor location
     int 10h       ;stores char at AL, attribute at AH
     
-    ;TEST
-    ;prints read char in white
-    mov bl, 0fh
-    mov cx ,1
     
-    mov ah, 09h
-    int 10h
+    ;DEBUG ONLY:
+     push ax
+     push dx
+     mov bh, 0
+     mov ah, 03h
+     int 10h
+     pop dx
+     pop ax
+    ;/DEBUG
     
-    pop cx ;test
+    ;;TEST
+;    ;prints read char in white
+;    mov bl, 0fh
+;    mov cx ,1
+;    
+;    mov ah, 09h
+;    int 10h
+;    
+;    pop cx ;test
     pop bx
     
     pop bp
