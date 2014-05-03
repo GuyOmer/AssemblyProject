@@ -68,8 +68,12 @@ AICol db 24,26,28,30
 
 LastAIMove db 1,1,1,1
 LastOn db 4 dup('.')
+
 ;number of . to collect
 Points db 224
+
+;Random genrator seeds
+seed dw 568,264,3,1533
 
 ends
 
@@ -785,7 +789,9 @@ mov al, LastOn[si]
 cmp al, '.'              ;checks what was on the block before
 JE RetYellow             ;and colors it accordingly
 
-JMP ResumeDelete
+
+mov bl, 07h              ;sets color to grey. TEMPRORAY FIX
+JMP ResumeDelete         ;UNTIL WALL-EATING IS SOLVED
 
 RetYellow:
 mov bl, 0eh      ;set color yellow
@@ -861,20 +867,23 @@ push bx
 push cx
 push si
 
-mov ah, 0     ;gets system time
-int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
-mov bx, 256   ;y - arbitrary picked
-mov si, 0     ;t - value holder
+;    mov ah, 0     ;gets system time
+;    int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
+;    mov bx, 256   ;y - arbitrary picked
+;    mov si, 0     ;t - value holder
 
-
+mov ax, seed[0]
+mov bx, seed[2]
+mov cx, seed[4]
+mov dx, seed[6]
 
 mov si, ax
 shl ax, 11   ;x ^ (x << 11)
 xor si, ax
 
-mov ax, bx   ;x = y
-mov bx, cx   ;y = z
-mov cx, dx   ;z = w
+mov seed[0], bx   ;x = y
+mov seed[2], cx   ;y = z
+mov seed[4], dx   ;z = w
 
 mov ax, dx
 shr ax, 19   ;w ^ (w >> 19)
@@ -885,6 +894,8 @@ xor dx, si   ;...^ t
 mov ax, si
 shr ax, 8    ;...^ (t >> 8)
 xor dx, ax
+
+mov seed[6], dx    ;saves result at w
 
 call Mod
 
