@@ -29,7 +29,7 @@ MazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #"
 MazeLine23 db "#######################################################","$"
 
 ;STUIPD MAZE
-SMazeLine1  db "%######################################################",0dh, 0ah
+SMazeLine1  db "!######################################################",0dh, 0ah
 SMazeLine2  db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
 SMazeLine3  db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
 SMazeLine4  db "# P ####### . ######### . ### . ######### . ####### P #",0dh, 0ah
@@ -68,8 +68,12 @@ AICol db 24,26,28,30
 
 LastAIMove db 1,1,1,1
 LastOn db 4 dup('.')
+
 ;number of . to collect
 Points db 224
+
+;Random genrator seeds
+seed dw 568,264,3,1533
 
 ends
 
@@ -91,12 +95,13 @@ mov ah, 0
 int 10h
 
 mov ch, 32
-mov ah, 1
-int 10h     ;removes blinking cursor
+mov ah, 1    ;removes blinking cursor
+int 10h
 
-call PrintMaze
 
-;call StuipdPrintMaze ;fast maze prinitng for debugging
+;call PrintMaze
+
+call StuipdPrintMaze ;fast maze prinitng for debugging
 
 Game:
 call PlayerMove
@@ -536,6 +541,26 @@ mov bh, 0     ;sets page to 0
 mov ah, 08h   ;reads data of cursor location
 int 10h       ;stores char at AL, attribute at AH
 
+
+;DEBUG ONLY:
+push ax
+push dx
+mov bh, 0
+mov ah, 03h
+int 10h
+pop dx
+pop ax
+;/DEBUG
+
+;;TEST
+;    ;prints read char in white
+;    mov bl, 0fh
+;    mov cx ,1
+;
+;    mov ah, 09h
+;    int 10h
+;
+;    pop cx ;test
 pop bx
 
 pop bp
@@ -764,6 +789,7 @@ mov al, LastOn[si]
 cmp al, '.'              ;checks what was on the block before
 JE RetYellow             ;and colors it accordingly
 
+JMP ResumeDelete
 
 RetYellow:
 mov bl, 0eh      ;set color yellow
@@ -839,20 +865,23 @@ push bx
 push cx
 push si
 
-mov ah, 0     ;gets system time
-int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
-mov bx, 256   ;y - arbitrary picked
-mov si, 0     ;t - value holder
+;    mov ah, 0     ;gets system time
+;    int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
+;    mov bx, 256   ;y - arbitrary picked
+;    mov si, 0     ;t - value holder
 
-
+mov ax, seed[0]
+mov bx, seed[2]
+mov cx, seed[4]
+mov dx, seed[6]
 
 mov si, ax
 shl ax, 11   ;x ^ (x << 11)
 xor si, ax
 
-mov ax, bx   ;x = y
-mov bx, cx   ;y = z
-mov cx, dx   ;z = w
+mov seed[0], bx   ;x = y
+mov seed[2], cx   ;y = z
+mov seed[4], dx   ;z = w
 
 mov ax, dx
 shr ax, 19   ;w ^ (w >> 19)
@@ -863,6 +892,8 @@ xor dx, si   ;...^ t
 mov ax, si
 shr ax, 8    ;...^ (t >> 8)
 xor dx, ax
+
+mov seed[6], dx    ;saves result at w
 
 call Mod
 
