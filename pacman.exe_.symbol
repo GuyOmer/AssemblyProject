@@ -57,6 +57,7 @@ AICOL                    	00A1A     	1         	VAR       	data
 LASTAIMOVE               	00A1E     	1         	VAR       	data      
 LASTON                   	00A22     	1         	VAR       	data      
 POINTS                   	00A26     	1         	VAR       	data      
+SEED                     	00A27     	2         	VAR       	data      
 STACK                    	000A3     	-5        	SEGMENT   	(ITSELF)  
 CODE                     	000B3     	-5        	SEGMENT   	(ITSELF)  
 START                    	00000     	-1        	LABEL     	code      
@@ -109,12 +110,12 @@ TRYLEFT                  	002A5     	-1        	LABEL     	code
 LASTMOVEGOOD             	002B4     	-1        	LABEL     	code      
 GOODNEWMOVE              	002CD     	-1        	LABEL     	code      
 AIDELETE                 	002D9     	-1        	NEAR      	code      
-RETYELLOW                	002EF     	-1        	LABEL     	code      
-RESUMEDELETE             	002F3     	-1        	LABEL     	code      
-PLACEAI                  	002FF     	-1        	NEAR      	code      
-RANDOMGEN                	00322     	-1        	NEAR      	code      
-MOD                      	0039C     	-1        	NEAR      	code      
+RETYELLOW                	002F1     	-1        	LABEL     	code      
+RESUMEDELETE             	002F5     	-1        	LABEL     	code      
+PLACEAI                  	00301     	-1        	NEAR      	code      
+RANDOMGEN                	00324     	-1        	NEAR      	code      
+MOD                      	003AD     	-1        	NEAR      	code      
 ===================================================================================================
-[ 29/04/2014  --  17:55:32 ] 
+[ 03/05/2014  --  13:33:02 ] 
 < END >
  
