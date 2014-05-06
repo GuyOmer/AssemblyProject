@@ -18,7 +18,7 @@ MazeLine11 db "####### .   . ###   #   H H H H   #   ### . # . #######"
 MazeLine12 db "####### . # . ###   #   H H H H   #   ### . # . #######"
 MazeLine13 db "####### . # . ###   ###############   ### . # . #######"
 MazeLine14 db "####### . # . ###          @          ### . # . #######"
-MazeLine15 db "####### . # . ###   ##################### . # . #######"
+MazeLine15 db "####### . # . ###   ###############   ### . # . #######"
 MazeLine16 db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #"
 MazeLine17 db "# . ####### . ######### . ### . ######### . ####### . #"
 MazeLine18 db "# P . . ### . . . . . . .  . . . . . . .. . ### . . P #"
@@ -43,7 +43,7 @@ SMazeLine11 db "####### .   . ###   #   H H H H   #   ### . # . #######",0dh, 0a
 SMazeLine12 db "####### . # . ###   #   & & & &   #   ### . # . #######",0dh, 0ah,"$"
 SMazeLine13 db "####### . # . ###   ###############   ### . # . #######",0dh, 0ah
 SMazeLine14 db "####### . # . ###          @          ### . # . #######",0dh, 0ah
-SMazeLine15 db "####### . # . ###   ##################### . # . #######",0dh, 0ah
+SMazeLine15 db "####### . # . ###   ###############   ### . # . #######",0dh, 0ah
 SMazeLine16 db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
 SMazeLine17 db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
 SMazeLine18 db "# P . . ### . . . . . . .  . . . . . . .. . ### . . P #",0dh, 0ah
@@ -149,7 +149,7 @@ endp
 proc PrintMaze
 ;/**
 ;  * This proc prints the whole maze,
-;  * and colors is according to its chars:
+;  * and colors it according to its chars:
 ;  * # - Blue, . - Yellow, @ - Orange
 ;  * Maze Dimensions: 46x24 Chars
 ;  * Emulator prints maze in 14.27 seconds
@@ -214,7 +214,7 @@ endp
 proc MoveCursor
     ;  /**
     ;  * proc moves cursor according to maze printing,
-    ;  * e.g: moves right by default, and down when printing the last
+    ;  * i.e: moves right by default, and down when printing the last
     ;  * char of a line
     ;  **/
     push bp
@@ -259,7 +259,7 @@ proc GetKeyStroke
     ;  /**
     ;  * proc reads keyboard key
     ;  * clears buffer post reading
-    ;  * uses Halt proc to give 1 seconds delay
+    ;  * uses Halt proc to give delay
     ;  *
     ;  * lastest movement direction is kept on memory
     ;  * and always used unless can't be used\newer direction
@@ -278,7 +278,7 @@ proc GetKeyStroke
     
     JZ NoStroke    ; if ZF = 1, no keystroke was entered, required?
     
-    cmp LastMove, 'N' 
+    ;cmp LastMove, 'N' 
     
     cmp ah, 48h    ;up key was pressed
     JE Up
@@ -334,7 +334,7 @@ proc GetKeyStroke
 
 proc Halt
     ;  /**
-    ;  * proc delays programs by 1 sec
+    ;  * proc delays program
     ;  * uses system times to measure time
     ;  * system time is in clicks, ~18 clicks = 1 second
     ;  **/
@@ -356,7 +356,7 @@ proc Halt
         int 1ah      ;get system time
         sub dx, bx
         cmp dx, 12   ;12 clicks ~ 2/3 second
-    JNGE Counter ;if dx !>= 19
+    JNGE Counter ;if dx !>= 12
 
     pop dx
     pop cx
@@ -536,21 +536,22 @@ proc CheckLocation
     mov bp,sp
     
     push bx
+    push cx
     
     mov bh, 0     ;sets page to 0
     mov ah, 08h   ;reads data of cursor location
     int 10h       ;stores char at AL, attribute at AH
     
     
-    ;DEBUG ONLY:
-     push ax
-     push dx
-     mov bh, 0
-     mov ah, 03h
-     int 10h
-     pop dx
-     pop ax
-    ;/DEBUG
+  ;  ;DEBUG ONLY:
+;     push ax
+;     push dx
+;     mov bh, 0
+;     mov ah, 03h
+;     int 10h
+;     pop dx
+;     pop ax
+;    ;/DEBUG
     
     ;;TEST
 ;    ;prints read char in white
@@ -561,6 +562,7 @@ proc CheckLocation
 ;    int 10h
 ;    
 ;    pop cx ;test
+    pop cx
     pop bx
     
     pop bp
@@ -604,7 +606,7 @@ proc AICrawl
     ;  * if more than 2 direction are avilable or lastest movement
     ;  * direction is unavilable a new direction of movement will be genrated
     ;  *
-    ;  * BL binary key of possbile directions, BH number of possible directions
+    ;  * CL binary key of possbile directions, CH number of possible directions
     ;  *
     ;  * proc recives current AI on SI, and his cords on DX
     ;  * proc returns new good cords for AI in DX
@@ -614,8 +616,10 @@ proc AICrawl
     
     push ax
     push bx
+    push cx
     
-    mov bx, 0
+    mov bh, 0           ;set page 0
+    mov cx, 0
     
     dec dh
     mov ah, 2
@@ -624,8 +628,8 @@ proc AICrawl
     call CheckLocation  ;stores char at AL, attribute at AH
     cmp al, '#'
     JE UpBlock
-    add bl, 00000001b   ;up is good
-    inc bh
+    add cl, 00000001b   ;up is good
+    inc ch
     UpBlock:
     inc dh              ;return to orignial cords
      
@@ -637,8 +641,8 @@ proc AICrawl
     call CheckLocation  ;stores char at AL, attribute at AH
     cmp al, '#'
     JE RightBlock
-    add bl, 00000010b   ;right is good
-    inc bh
+    add cl, 00000010b   ;right is good
+    inc ch
     RightBlock:
     dec dl
     
@@ -650,8 +654,8 @@ proc AICrawl
     call CheckLocation  ;stores char at AL, attribute at AH
     cmp al, '#'
     JE DownBlock
-    add bl, 00000100b   ;down is good
-    inc bh
+    add cl, 00000100b   ;down is good
+    inc ch
     DownBlock:
     dec dh
     
@@ -663,19 +667,19 @@ proc AICrawl
     call CheckLocation  ;stores char at AL, attribute at AH
     cmp al, '#'
     JE LeftBlock
-    add bl, 00001000b   ;left is good
-    inc bh
+    add cl, 00001000b   ;left is good
+    inc ch
     LeftBlock:
     inc dl
     
-    cmp bh, 3           ;if we are on a crossing (e.g 3 pathes)
+    cmp ch, 3           ;if we are on a crossing (e.g 3 pathes)
     JGE NewMove             
                         ;try changing direction    
     
-    push bx 
-    and bl, LastAIMove[si]
-    cmp bl, LastAIMove[si]
-    pop bx
+    push cx 
+    and cl, LastAIMove[si]
+    cmp cl, LastAIMove[si]
+    pop cx
     JE LastMoveGood          ;can move in last direction 
                                                       
     NewMove:
@@ -696,10 +700,10 @@ proc AICrawl
     
     TryUp:
     pop dx
-    push bx
-    and bl, 00000001b    ;check if up direction is possible
-    cmp bl, 00000001b
-    pop bx
+    push cx
+    and cl, 00000001b    ;check if up direction is possible
+    cmp cl, 00000001b
+    pop cx
     JNE NewMove
     dec dh               ;set new position
     
@@ -707,10 +711,10 @@ proc AICrawl
     
     TryRight:
     pop dx
-    push bx
-    and bl, 00000010b    ;check if right direction is possible
-    cmp bl, 00000010b
-    pop bx
+    push cx
+    and cl, 00000010b    ;check if right direction is possible
+    cmp cl, 00000010b
+    pop cx
     JNE NewMove
     inc dl               ;set new position
     
@@ -718,10 +722,10 @@ proc AICrawl
     
     TryDown:
     pop dx
-    push bx
-    and bl, 00000100b    ;check if down direction is possible
-    cmp bl, 00000100b
-    pop bx
+    push cx
+    and cl, 00000100b    ;check if down direction is possible
+    cmp cl, 00000100b
+    pop cx
     JNE NewMove
     inc dh               ;set new position
     
@@ -729,10 +733,10 @@ proc AICrawl
     
     TryLeft:
     pop dx
-    push bx
-    and bl, 00001000b    ;check if left direction is possible
-    cmp bl, 00001000b
-    pop bx
+    push cx
+    and cl, 00001000b    ;check if left direction is possible
+    cmp cl, 00001000b
+    pop cx
     JNE NewMove
     dec dl               ;set new position
     
@@ -741,24 +745,27 @@ proc AICrawl
      
     LastMoveGood:        ;intrdouces double checking, but reduces code required
     push dx              ;not required, only used to keep stack correct due to Try*
-    mov bl, LastAIMove[si]
+    mov cl, LastAIMove[si]
      
-    cmp bl, 00000001b    ;check if last direction was up
+    cmp cl, 00000001b    ;check if last direction was up
     JE TryUp
      
-    cmp bl, 00000010b    ;check if last direction was right
+    cmp cl, 00000010b    ;check if last direction was right
     JE TryRight
        
-    cmp bl, 00000100b    ;check if last direction was down
+    cmp cl, 00000100b    ;check if last direction was down
     JE TryDown
       
-    cmp bl, 00001000b    ;check if last direction was left
+    cmp cl, 00001000b    ;check if last direction was left
     JE TryLeft
     
     GoodNewMove:
     mov AIRow[si], dh
     mov AICol[si], dl 
     
+    mov LastAIMove[si], cl
+    
+    pop cx
     pop bx
     pop ax 
     
@@ -913,7 +920,7 @@ proc Mod
     ;  * proc preforms modulo by 4 for DX (needs to be passed by caller)
     ;  * returns moduled value in dx
     ;  *
-    ;  * Due the large numbers divison take place on a 32-bit
+    ;  * Due to large numbers, divison takes place on a 32-bit
     ;  * REG, to eliminate risk of overflow
     ;  **/
     push bp
