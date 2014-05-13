@@ -88,8 +88,6 @@ mov ax, data
 mov ds, ax
 mov es, ax
 
-; add your code here
-
 mov al, 03h ;set console's mode (24x79)
 mov ah, 0
 int 10h
@@ -98,12 +96,6 @@ mov ch, 32
 mov ah, 1    ;removes blinking cursor
 int 10h
 
-
-;<test>
-mov ax, 2
-int 33h
-;</test>
-
 ;call PrintMaze
 
 call StuipdPrintMaze ;fast maze prinitng for debugging
@@ -111,7 +103,13 @@ call StuipdPrintMaze ;fast maze prinitng for debugging
 Game:
 call PlayerMove
 call AIMove
+
+cmp Points, 0
+JE EndGame
+
 JMP Game
+
+EndGame:
 
 ; wait for any key....
 mov ah, 1
@@ -552,26 +550,6 @@ mov bh, 0     ;sets page to 0
 mov ah, 08h   ;reads data of cursor location
 int 10h       ;stores char at AL, attribute at AH
 
-
-;  ;DEBUG ONLY:
-;     push ax
-;     push dx
-;     mov bh, 0
-;     mov ah, 03h
-;     int 10h
-;     pop dx
-;     pop ax
-;    ;/DEBUG
-
-;;TEST
-;    ;prints read char in white
-;    mov bl, 0fh
-;    mov cx ,1
-;
-;    mov ah, 09h
-;    int 10h
-;
-;    pop cx ;test
 pop cx
 pop bx
 
@@ -711,44 +689,48 @@ JMP NewMove      ;fail-safe, incase of bad random number
 TryUp:
 pop dx
 push cx
-and cl, 00000001b    ;check if up direction is possible
+and cl, 00000001b      ;check if up direction is possible
 cmp cl, 00000001b
+mov LastAIMove[si], cl ;saves new direction
 pop cx
 JNE NewMove
-dec dh               ;set new position
+dec dh                  ;set new position
 
 JMP GoodNewMove
 
 TryRight:
 pop dx
 push cx
-and cl, 00000010b    ;check if right direction is possible
+and cl, 00000010b      ;check if right direction is possible
 cmp cl, 00000010b
+mov LastAIMove[si], cl ;saves new direction
 pop cx
 JNE NewMove
-inc dl               ;set new position
+inc dl                 ;set new position
 
 JMP GoodNewMove
 
 TryDown:
 pop dx
 push cx
-and cl, 00000100b    ;check if down direction is possible
+and cl, 00000100b      ;check if down direction is possible
 cmp cl, 00000100b
+mov LastAIMove[si], cl ;saves new direction
 pop cx
 JNE NewMove
-inc dh               ;set new position
+inc dh                 ;set new position
 
 JMP GoodNewMove
 
 TryLeft:
 pop dx
 push cx
-and cl, 00001000b    ;check if left direction is possible
+and cl, 00001000b      ;check if left direction is possible
 cmp cl, 00001000b
+mov LastAIMove[si], cl ;saves new direction
 pop cx
 JNE NewMove
-dec dl               ;set new position
+dec dl                 ;set new position
 
 JMP GoodNewMove
 
@@ -772,8 +754,6 @@ JE TryLeft
 GoodNewMove:
 mov AIRow[si], dh
 mov AICol[si], dl
-
-mov LastAIMove[si], cl
 
 pop cx
 pop bx

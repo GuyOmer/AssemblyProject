@@ -53,6 +53,32 @@ SMazeLine21 db "# . ################### . ### . ################### . #",0dh, 0a
 SMazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #",0dh, 0ah
 SMazeLine23 db "#######################################################",0dh, 0ah,"$"
 
+;Parallel Maze
+;SMazeLine1  db "!######################################################",0dh, 0ah
+;SMazeLine2  db "# . . . . . . . . . . .# # # # #  . . . . . . . . . . #",0dh, 0ah
+;SMazeLine3  db "# . ####### . ########## # # # ########## . ####### . #",0dh, 0ah
+;SMazeLine4  db "# P ####### . ########## # # # ########## . ####### P #",0dh, 0ah
+;SMazeLine5  db "# . . . . . . . . . . .# # # # #. . . . . . . . . . . #",0dh, 0ah
+;SMazeLine6  db "# . ####### . ### . #### # # # #### . ### . ####### . #",0dh, 0ah
+;SMazeLine7  db "# . . . . . . ### . . .# # # # #. . . ### . . . . . . #",0dh, 0ah
+;SMazeLine8  db "####### . # . ########## # # # ########## . # . #######",0dh, 0ah
+;SMazeLine9  db "####### . # . ###      # # # # #      ### . # . #######",0dh, 0ah
+;SMazeLine10 db "####### . # . ###   #### # # # ####   ### . # . #######",0dh, 0ah
+;SMazeLine11 db "####### .   . ###   #  # # # # #  #   ### . # . #######",0dh, 0ah
+;SMazeLine12 db "####### . # . ###   #  #&#&#&#&#  #   ### . # . #######",0dh, 0ah,"$"
+;SMazeLine13 db "####### . # . ###   ###############   ### . # . #######",0dh, 0ah
+;SMazeLine14 db "####### . # . ###        # @ #        ### . # . #######",0dh, 0ah
+;SMazeLine15 db "####### . # . ###   ###############   ### . # . #######",0dh, 0ah
+;SMazeLine16 db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #",0dh, 0ah
+;SMazeLine17 db "# . ####### . ######### . ### . ######### . ####### . #",0dh, 0ah
+;SMazeLine18 db "# P . . ### . . . . . . .  . . . . . . .. . ### . . P #",0dh, 0ah
+;SMazeLine19 db "##### . ### . ### . ############### . ### . ### . #####",0dh, 0ah
+;SMazeLine20 db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #",0dh, 0ah
+;SMazeLine21 db "# . ################### . ### . ################### . #",0dh, 0ah
+;SMazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #",0dh, 0ah
+;SMazeLine23 db "#######################################################",0dh, 0ah,"$"
+
+
 
 
 ;pacman's initial coordinates
@@ -103,8 +129,12 @@ call StuipdPrintMaze ;fast maze prinitng for debugging
 Game:
 call PlayerMove
 call AIMove
+call CheckCollisions
+cmp ax, 'L'
+JE Lost
 JMP Game
 
+Lost:
 ; wait for any key....
 mov ah, 1
 int 21h
@@ -729,8 +759,9 @@ dec dl                 ;set new position
 JMP GoodNewMove
 
 
-LastMoveGood:        ;intrdouces double checking, but reduces code required
-push dx              ;not required, only used to keep stack correct due to Try*
+LastMoveGood: ;Doesn't work while emulating step-by-step
+push dx       ;intrdouces double checking, but reduces code required
+;not required, only used to keep stack correct due to Try*
 mov cl, LastAIMove[si]
 
 cmp cl, 00000001b    ;check if last direction was up
@@ -816,11 +847,14 @@ push ax
 push bx
 push cx
 
+mov dh, AIRow[si]        ;sets new cords
+mov dl, AICol[si]
+
 mov bh, 0                ;set page
 mov ah, 2
 int 10h                  ;sets cursor on next AI position
 
-call CheckLocation       ;reads current position data (al=char, ah=artb)
+call CheckLocation       ;reads new position data (al=char, ah=artb)
 
 mov LastOn[si], al       ;stores stepped-on block for future retrieval
 
@@ -924,6 +958,76 @@ pop bp
 
 pop bx
 pop ax
+ret
+endp
+
+proc CheckCollisions
+
+push bp
+mov sp, sp
+
+push bx
+push cx
+push dx
+push si
+
+mov si, 0
+mov bx, 0
+mov dh, PlayerRow
+mov dl, PlayerCol
+
+PlayerToAI:
+cmp dh, AIRow[si]
+JNE SkipPTA     ;if no collison
+
+cmp dl, AICol[si]
+JNE SkipPTA     ;if no collison
+
+mov ax, 'L'     ;mark Lost
+
+SkipPTA:
+inc si
+cmp si, 04
+JNE PlayerToAI
+
+mov si, 0       ;reset si
+
+;checks AIs collisons to remove dead-drops (grey '&')
+;which are casued by AI cannibalism
+
+AIToAI:         ;iterate over "source AIs"
+mov bx, 1       ;only check AIs after current AI (si)
+mov dh, AIRow[si]
+mov dl, AICol[si]
+
+AIToAI2:    ;iterate AIs we compare to source AI
+cmp dh, AIRow[si+bx]
+JNE SkipATA     ;if no collison
+
+cmp dl, AICol[si+bx]
+JNE SkipATA     ;if no collison
+
+mov cl, LastOn[si]
+mov LastOn[si+bx], cl  ;swaps the stepping AI LastOn, with stepped on LastOn
+;so stepping AI wont overwrite the correct LastOn with '&'
+SkipATA:
+inc bx
+push bx
+add bx, si
+cmp bx, 04  ;iterate untill di = 4, i.e. we checked the last ai
+pop bx
+JNE AIToAI2
+
+inc si
+cmp si, 03      ;iterate 3 times (fourth AI is check though the first 3)
+JNE AIToAI
+
+pop si
+pop dx
+pop cx
+pop bx
+
+pop bp
 ret
 endp
 ends
