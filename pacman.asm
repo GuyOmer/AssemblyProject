@@ -77,7 +77,7 @@ SMazeLine23 db "#######################################################",0dh, 0a
 ;SMazeLine21 db "# . ################### . ### . ################### . #",0dh, 0ah
 ;SMazeLine22 db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #",0dh, 0ah
 ;SMazeLine23 db "#######################################################",0dh, 0ah,"$"
-
+;
 
 
 
@@ -171,7 +171,7 @@ proc StuipdPrintMaze
     	
     	pop bp
     ret
-endp
+StuipdPrintMaze endp
 
 proc PrintMaze
 ;/**
@@ -236,7 +236,7 @@ proc PrintMaze
     pop bp
     
     ret
-endp
+PrintMaze endp
 
 proc MoveCursor
     ;  /**
@@ -279,7 +279,7 @@ proc MoveCursor
     pop bp
     
     ret
-endp
+MoveCursor endp
 
 
 proc GetKeyStroke
@@ -357,7 +357,7 @@ proc GetKeyStroke
     
     ret
     
-    endp
+GetKeyStroke endp
 
 proc Halt
     ;  /**
@@ -376,7 +376,7 @@ proc Halt
     
     ResetHalt:
     
-    mov al, 0    ;so will be able to notice midnight - clicks reset.
+    ;mov al, 0    ;so will be able to notice midnight - clicks reset.
     mov ah, 00h
     int 1ah      ;get system time -> CX:DX, ~18 clicks = 1 second 
      
@@ -398,7 +398,7 @@ proc Halt
     pop bp
     
     ret   
-endp
+Halt endp
 
 proc PlayerMove
     ;  /**
@@ -479,7 +479,7 @@ proc PlayerMove
     pop bp
     
     ret
-endp
+PlayerMove endp
 
 proc SetCourse
     ;  /**
@@ -557,7 +557,7 @@ proc SetCourse
     pop bp
     
     ret   
-endp
+SetCourse endp
 
 proc CheckLocation
     ;  /**
@@ -580,7 +580,7 @@ proc CheckLocation
     pop bp
     
     ret     
-endp
+CheckLocation endp
 
 proc AIMove
     push bp
@@ -609,7 +609,7 @@ proc AIMove
     pop bp
     
     ret
-endp
+AIMove endp
 
 proc AICrawl
     ;  /**                                                       
@@ -784,9 +784,9 @@ proc AICrawl
     pop bx
     pop ax 
     
-    pop bx 
+    pop bp 
     ret    
-endp
+AICrawl endp
 
 proc AIDelete
     ;  /**                                                       
@@ -830,7 +830,7 @@ proc AIDelete
     pop bp
     
     ret    
-endp
+AIDelete endp
 
 proc PlaceAI
     ;  /**                                                       
@@ -872,7 +872,7 @@ proc PlaceAI
     pop bp
     
     ret    
-endp
+PlaceAI endp
 
 proc RandomGen
     ;  /**                                                       
@@ -895,14 +895,16 @@ proc RandomGen
 ;    int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
 ;    mov bx, 256   ;y - arbitrary picked
 ;    mov si, 0     ;t - value holder
-
+    
+    call Fuzzy        ;attempt to change seed[0]
+    
     mov ax, seed[0]
     mov bx, seed[2]
     mov cx, seed[4]
     mov dx, seed[6]
     
     mov si, ax             
-    shl ax, 11   ;x ^ (x << 11)
+    shl ax, 11        ;x ^ (x << 11)
     xor si, ax
     
     mov seed[0], bx   ;x = y
@@ -910,17 +912,20 @@ proc RandomGen
     mov seed[4], dx   ;z = w
     
     mov ax, dx
-    shr ax, 19   ;w ^ (w >> 19)
+    shr ax, 19        ;w ^ (w >> 19)
     xor dx, ax
     
-    xor dx, si   ;...^ t
+    xor dx, si        ;...^ t
     
     mov ax, si
-    shr ax, 8    ;...^ (t >> 8)
+    shr ax, 8         ;...^ (t >> 8)
     xor dx, ax
     
-    mov seed[6], dx    ;saves result at w
+    mov seed[6], dx   ;saves result at w
     
+    push dx           ;push the Random Number
+    mov bx, 4         ;modulo by 4
+    push bx
     call Mod
     
     pop si
@@ -931,15 +936,15 @@ proc RandomGen
     pop bp
     
     ret
-endp
+RandomGen endp
 
 proc Mod
     ;  /**
-    ;  * proc preforms modulo by 4 for DX (needs to be passed by caller)
+    ;  * proc preforms modulo by BX for DX (needs to be passed by caller)
     ;  * returns moduled value in dx
     ;  *
     ;  * Due to large numbers, divison takes place on a 32-bit
-    ;  * REG, to eliminate risk of overflow
+    ;  * REG (DX:AX), to eliminate risk of overflow
     ;  **/
     push bp
     mov bp, sp
@@ -947,19 +952,19 @@ proc Mod
     push ax
     push bx
     
-    mov ax, dx  ;ax is the less significant
-    mov dx, 0
-    mov bx, 4
+    mov ax, [bp+6] ;get dividend
+    mov bx, [bp+4] ;get divisor
+    mov dx, 0      ;clear the significant byte
     
-    div bx      ;dl contains the divisor
+    div bx      ;divide DX:AX
+                ;AX contains the result
                 ;reminder of divison is kept in DX
-    
-    pop bp
-    
     pop bx 
-    pop ax 
-    ret        
-endp
+    pop ax
+    
+    pop bp 
+    ret 4        
+Mod endp
 
 proc CheckCollisions
     ;  /**
@@ -973,7 +978,7 @@ proc CheckCollisions
     ;  **/
     
     push bp
-    mov sp, sp
+    mov bp, sp
     
     push bx
     push cx
@@ -995,6 +1000,7 @@ proc CheckCollisions
     JNE SkipPTA     ;if no collison
     
     mov ax, 'L'     ;mark Lost
+    JMP FinishCC    ;no need to keep running, jump to the end
     
     SkipPTA:
     inc si    
@@ -1033,6 +1039,8 @@ proc CheckCollisions
     cmp si, 03      ;iterate 3 times (fourth AI is check though the first 3)
     JNE AIToAI
     
+    FinishCC:
+    
     pop si
     pop dx
     pop cx
@@ -1040,7 +1048,60 @@ proc CheckCollisions
     
     pop bp
     ret    
-endp
+CheckCollisions endp
+
+proc Fuzzy 
+    ;  /**
+    ;  * proc does the following:
+    ;  * if (time_clicks % 7 == 0 ) then seed[0]>>(clicks%10).
+    ;  * 
+    ;  * proc is suposed to add another factor to the randomizer,
+    ;  * which is not seeds dependent, therefore improving randomization,
+    ;  * and making AI movement unpredictable.
+    ;  * There are 9362 hits in a sinlge cycle, which means about 15%
+    ;  * of all click's possible values will trigger Fuzzy.
+    ;  * DX's values (0-9) have 1/9% of appering.
+    ;  **/
+    push bp
+    mov bp, sp
+    
+    push ax
+    push cx
+    push dx
+    
+    mov ah, 00h
+    int 1ah      ;get system time -> CX:DX, ~18 clicks = 1 second
+    
+    mov cx, dx   ;saves DX for future retrival
+    
+    push cx      ;push dividend
+    mov dx, 7    ;set divisor
+    push dx      ;push divisor
+    call Mod     ;returns reminder in DX
+    
+    cmp dx, 0
+    JNE SkipF    ;DX % 7 != 0 
+    
+    push cx      ;push dividend
+    mov dx, 10   ;set divisor
+    push dx      ;push divisor
+    call Mod     ;returns reminder in DX
+    
+    FuzzyLoop:          ;due to the SHR's possbile operand 
+        shr seed[0], 1  ;a loop must be induced in order to shift
+        dec dx          ;DX times
+        cmp dx, 0
+    JNE FuzzyLoop
+        
+    SkipF:
+    
+    pop dx
+    pop cx
+    pop ax
+    
+    pop bp
+    ret    
+Fuzzy endp
 ends
 
 end start ; set entry point and stop the assembler.
