@@ -4,7 +4,7 @@ data segment
     ; add your data here!
     pkey db "press any key...$"
     
-    seed dw 568,264,3,1533
+    seed dw 3191, 61901, 44822, 32811
     res db 8 dup(0)
     last dw 5
     double dw 0
@@ -73,14 +73,16 @@ proc RandomGen
 ;    int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
 ;    mov bx, 256   ;y - arbitrary picked
 ;    mov si, 0     ;t - value holder
-
+    
+    call Fuzzy        ;attempts to change seed[0]
+    
     mov ax, seed[0]
     mov bx, seed[2]
     mov cx, seed[4]
     mov dx, seed[6]
     
     mov si, ax             
-    shl ax, 11   ;x ^ (x << 11)
+    shl ax, 11        ;x ^ (x << 11)
     xor si, ax
     
     mov seed[0], bx   ;x = y
@@ -88,17 +90,20 @@ proc RandomGen
     mov seed[4], dx   ;z = w
     
     mov ax, dx
-    shr ax, 19   ;w ^ (w >> 19)
+    shr ax, 19        ;w ^ (w >> 19)
     xor dx, ax
     
-    xor dx, si   ;...^ t
+    xor dx, si        ;...^ t
     
     mov ax, si
-    shr ax, 8    ;...^ (t >> 8)
+    shr ax, 8         ;...^ (t >> 8)
     xor dx, ax
     
-    mov seed[6], dx    ;saves result at w
+    mov seed[6], dx   ;saves result at w
     
+    push dx           ;push the Random Number
+    mov bx, 4         ;modulo by 4
+    push bx
     call Mod
     
     pop si
@@ -109,15 +114,15 @@ proc RandomGen
     pop bp
     
     ret
-endp
+RandomGen endp
 
 proc Mod
     ;  /**
-    ;  * proc preforms modulo by 4 for DX (needs to be passed by caller)
+    ;  * proc preforms modulo by BX for DX (needs to be passed by caller)
     ;  * returns moduled value in dx
     ;  *
-    ;  * Due the large numbers divison take place on a 32-bit
-    ;  * REG, to eliminate risk of overflow
+    ;  * Due to large numbers, divison takes place on a 32-bit
+    ;  * REG (DX:AX), to eliminate risk of overflow
     ;  **/
     push bp
     mov bp, sp
@@ -125,19 +130,77 @@ proc Mod
     push ax
     push bx
     
-    mov ax, dx  ;ax is the less significant
-    mov dx, 0
-    mov bx, 4
+    mov ax, [bp+6] ;get dividend
+    mov bx, [bp+4] ;get divisor
+    mov dx, 0      ;clear the significant byte
     
-    div bx      ;dl contains the divisor
+    div bx      ;divide DX:AX
+                ;AX contains the result
                 ;reminder of divison is kept in DX
+    pop bx 
+    pop ax
+    
+    pop bp 
+    ret 4        
+Mod endp
+
+proc Fuzzy 
+    ;  /**
+    ;  * proc does the following:
+    ;  * if (time_clicks % 7 == 0 ) then seed[0]>>(clicks%10).
+    ;  * 
+    ;  * proc is suposed to add another factor to the randomizer,
+    ;  * which is not seeds dependent, therefore improving randomization,
+    ;  * and making AI movement unpredictable.
+    ;  * There are 9362 hits in a sinlge cycle, which means about 15%
+    ;  * of all click's possible values will trigger Fuzzy.
+    ;  * DX's values (0-9) have 1/9% of appering.
+    ;  **/
+    push bp
+    mov bp, sp
+    
+    push ax
+    push cx
+    push dx
+    
+    mov ah, 00h
+    int 1ah      ;get system time -> CX:DX, ~18 clicks = 1 second
+    
+    mov cx, dx   ;saves DX for future retrival
+    
+    push cx      ;push dividend
+    mov dx, 7    ;set divisor
+    push dx      ;push divisor
+    call Mod     ;returns reminder in DX
+    
+    cmp dx, 0
+    JNE SkipF    ;DX % 7 != 0 
+    
+    push cx      ;push dividend
+    mov dx, 10   ;set divisor
+    push dx      ;push divisor
+    call Mod     ;returns reminder in DX
+    
+    cmp dx, 0    ;if reminder is 0 do nothing
+    JE SkipF
+    
+    FuzzyLoop:          ;due to the SHR's possbile operand 
+        shr seed[0], 1  ;a loop must be induced in order to shift
+        dec dx          ;DX times
+        cmp dx, 0
+    JNE FuzzyLoop
+        
+    SkipF:
+    
+    pop dx
+    pop cx
+    pop ax
     
     pop bp
-    
-    pop bx 
-    pop ax 
-    ret        
-endp   
+    ret    
+Fuzzy endp
+
+
 ends
 
 end start ; set entry point and stop the assembler.

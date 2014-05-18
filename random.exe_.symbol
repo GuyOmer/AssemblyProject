@@ -1,0 +1,24 @@
+< THE SYMBOL TABLE >  random.exe_  --  emu8086 assembler version: 4.08 
+===================================================================================================
+Name                     	Offset    	Size      	Type      	Segment   
+===================================================================================================
+DATA                     	00000     	-5        	SEGMENT   	(ITSELF)  
+PKEY                     	00000     	1         	VAR       	data      
+SEED                     	00011     	2         	VAR       	data      
+RES                      	00019     	1         	VAR       	data      
+LAST                     	00021     	2         	VAR       	data      
+DOUBLE                   	00023     	2         	VAR       	data      
+STACK                    	00003     	-5        	SEGMENT   	(ITSELF)  
+CODE                     	00013     	-5        	SEGMENT   	(ITSELF)  
+START                    	00000     	-1        	LABEL     	code      
+RND                      	0000A     	-1        	LABEL     	code      
+CONT1                    	0001E     	-1        	LABEL     	code      
+RANDOMGEN                	00037     	-1        	NEAR      	code      
+MOD                      	000C8     	-1        	NEAR      	code      
+FUZZY                    	000DE     	-1        	NEAR      	code      
+FUZZYLOOP                	00104     	-1        	LABEL     	code      
+SKIPF                    	0010E     	-1        	LABEL     	code      
+===================================================================================================
+[ 14/05/2014  --  18:04:22 ] 
+< END >
+ 
