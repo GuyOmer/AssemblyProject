@@ -18,6 +18,7 @@ MainMenu db "                               MAIN MENU:",0ah,0ah
          db "                          c. About.      ",0ah
          db "                          d. Quit.       ",0ah,0ah,0ah
          db "Press a letter on the keyboard...","$" 
+
 ;instructions
 Instructions db "          Use the arrow keys to manuover Pacman around the maze.",0ah
              db "          Avoid the monsters, if they catch you you will lose.  ",0ah
@@ -31,7 +32,8 @@ About db "          Pacman project in assembly.              ",0ah
       db "          -Complete functional AI.                 ",0ah
       db "          -Pseudo-Random number genrator.          ",0ah
       db "          -16-bit colors.                          ",0ah,0ah,0ah   
-      db "          Project By Guy Omer.                     ","$" 
+      db "          Project By Guy Omer,                     ",0ah
+      db "          2014."                                    ,"$" 
 
 ;return message
 Return db "Press any key to return to main menu...","$" 
@@ -45,6 +47,7 @@ Victory db "           __ __  ___  __ __      __    __  ___  ____       __ ",0ah
         db "          |     |     |     |     \      /|     |  |  |    |  |",0ah
         db "          |____/ \___/ \__,_|      \_/\_/  \___/|__|__|    |__|","$" 
 
+;defeat message
 Defeat  db "           __   __ _______ __   __   ___     _______ _______ _______ ",0ah
         db "          |  | |  |       |  | |  | |   |   |       |       |       |",0ah
         db "          |  |_|  |   _   |  | |  | |   |   |   _   |  _____|_     _|",0ah
@@ -54,49 +57,49 @@ Defeat  db "           __   __ _______ __   __   ___     _______ _______ _______
         db "            |___| |_______|_______| |_______|_______|_______| |___|  ","$" 
      
 ;the maze
-MazeLine1  db "#######################################################"
-           db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #"
-           db "# . ####### . ######### . ### . ######### . ####### . #"
-           db "# P ####### . ######### . ### . ######### . ####### P #"
-           db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #"
-           db "# . ####### . ### . ############### . ### . ####### . #"
-           db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #"
-           db "####### . # . #########   ###   ######### . # . #######"
-           db "####### . # . ###                     ### . # . #######"
-           db "####### . # . ###   ##### - - #####   ### . # . #######"
-           db "####### .   . ###   #   H H H H   #   ### . # . #######"
-           db "####### . # . ###   #   H H H H   #   ### . # . #######"
-           db "####### . # . ###   ###############   ### . # . #######"
-           db "####### . # . ###          @          ### . # . #######"
-           db "####### . # . ###   ###############   ### . # . #######"
-           db "# . . . . . . . . . . . . ### . . . . . . . . . . . . #"
-           db "# . ####### . ######### . ### . ######### . ####### . #"
-           db "# P . . ### . . . . . . .  . . . . . . .. . ### . . P #"
-           db "##### . ### . ### . ############### . ### . ### . #####"
-           db "# . . . . . . ### . . . . ### . . . . ### . . . . . . #"
-           db "# . ################### . ### . ################### . #"
-           db "# . . . . . . . . . . . . . . . . . . . . . . . . . . #"
-           db "#######################################################","$"
+MazeLine1  	db "#####################################################"
+            db "#. . . . . . . . . . . .#####. . . . . . . . . . . .#"
+            db "#.#########.###########.#####.###########.#########.#"
+            db "#.#########.###########.#####.###########.#########.#"
+            db "#. . . . . . . . . . . . . . . . . . . . . . . . . .#"
+            db "#.#########.#####.#################.#####.#########.#"
+            db "#. . . . . .#####. . . . ### . . . .#####. . . . . .#"
+            db "#######.###.############ ### ############.###.#######"
+            db "#######.###.####                     ####.###.#######"
+            db "#######.###.#### ######## # ######## ####.###.#######"
+            db "#######.###.#### ######## # ######## ####.###.#######"
+            db "#######. . .           &#&#&#&           . . .#######"
+            db "#######.###.#### ################### ####.###.#######"
+            db "#######.###.####          @          ####.###.#######"
+            db "#######.###.#### ################### ####.###.#######"
+            db "#. . . . . . . . . . . .#####. . . . . . . . . . . .#"
+            db "#.#########.###########.#####.###########.#########.#"
+            db "#. . .#####. . . . . . .  . . . . . . .. .#####. . .#"
+            db "#####.#####.#####.#################.#####.#####.#####"
+            db "#. . . . . .#####. . . .#####. . . .#####. . . . . .#"
+            db "#.#####################.#####.#####################.#"
+            db "#. . . . . . . . . . . . . . . . . . . . . . . . . .#"
+            db "#####################################################","$"
    
-;STUIPD MAZE
+;Simple MAZE
 SMazeLine1  db "!####################################################",0dh, 0ah
             db "#. . . . . . . . . . . .#####. . . . . . . . . . . .#",0dh, 0ah
             db "#.#########.###########.#####.###########.#########.#",0dh, 0ah
-            db "#P#########.###########.#####.###########.#########P#",0dh, 0ah
+            db "#.#########.###########.#####.###########.#########.#",0dh, 0ah
             db "#. . . . . . . . . . . . . . . . . . . . . . . . . .#",0dh, 0ah
             db "#.#########.#####.#################.#####.#########.#",0dh, 0ah
             db "#. . . . . .#####. . . . ### . . . .#####. . . . . .#",0dh, 0ah
-            db "#######.###.###########  ###  ###########.###.#######",0dh, 0ah
+            db "#######.###.############ ### ############.###.#######",0dh, 0ah
             db "#######.###.####                     ####.###.#######",0dh, 0ah
             db "#######.###.#### ######## # ######## ####.###.#######",0dh, 0ah
             db "#######.###.#### ######## # ######## ####.###.#######",0dh, 0ah
-            db "#######.   .           &#&#&#&           .   .#######",0dh, 0ah,"$"
+            db "#######. . .           &#&#&#&           . . .#######",0dh, 0ah,"$"
 SMazeLine13 db "#######.###.#### ################### ####.###.#######",0dh, 0ah
             db "#######.###.####          @          ####.###.#######",0dh, 0ah
             db "#######.###.#### ################### ####.###.#######",0dh, 0ah
             db "#. . . . . . . . . . . .#####. . . . . . . . . . . .#",0dh, 0ah
             db "#.#########.###########.#####.###########.#########.#",0dh, 0ah
-            db "#P . . ####. . . . . . .  . . . . . . .. .#####. . P#",0dh, 0ah
+            db "#. . .#####. . . . . . .  . . . . . . .. .#####. . .#",0dh, 0ah
             db "#####.#####.#####.#################.#####.#####.#####",0dh, 0ah
             db "#. . . . . .#####. . . .#####. . . .#####. . . . . .#",0dh, 0ah
             db "#.#####################.#####.#####################.#",0dh, 0ah
@@ -135,21 +138,21 @@ SMazeLine13 db "#######.###.#### ################### ####.###.#######",0dh, 0ah
 PlayerRow db 13
 PlayerCol db 26
 
-LastMove  db ?
+LastMove  dw ?
 
 ;AIs' initial coordinates
     ;AI: 0 |1 |2 |3
 AIRow db 11,11,11,11
 AICol db 23,25,27,29
-
-LastAIMove db 1,1,1,1
+;AIs' last moves (initial values are to allow quick exit from spawn)
+LastAIMove db 1000b,0001b,0001b,0010b
 LastOn db 4 dup(' ')  
 
-;number of . to collect
-Points db 224
+;number of '.' to collect
+Points db 230
 
 ;Random generator seeds
-seed dw 3191, 61901, 44822, 32811  ;generated by seed.c
+seed dw 3191, 61901, 44822, 32811  ;as generated by seed.c
 
 ends
 
@@ -166,60 +169,60 @@ mov es, ax
  
 call Initialize
 
-;opening screen
-;call Pages
-call Menus
+;startup
+call Menus            ;comment those when debugging
 call UI
+
 ;the game itself 
-;call PrintMaze
+call PrintMaze
  
-call StuipdPrintMaze ;fast maze prinitng for debugging
+;call SimplePrintMaze ;fast maze prinitng for debugging
  
-Game:
-call PlayerMove
-call AIMove
-call CheckCollisions
-
-cmp ax, 'L'
-JE Lost
-
-cmp Points, 0
-JE Won
+Game:  
+    call PlayerMove
+    call AIMove
+    call CheckCollisions
+    
+    cmp ax, 'L'           ;if lost
+    JE Lost
+    
+    cmp Points, 0         ;if won
+    JE Won
 
 JMP Game
 
 Lost:
-mov al, 5     ;set active page 0 (defeat)
+mov al, 5     ;set active page 5 (defeat)
 mov ah, 05h
 int 10h       ;set page
 
 JMP Done
 
 Won:
-mov al, 4     ;set active page 0 (victory)
+mov al, 4     ;set active page 4 (victory)
 mov ah, 05h
 int 10h       ;set page
 
 JMP Done
 
 Done:
+
 ; wait for any key....
 mov ah, 1
 int 21h
 
-mov ax, 4c00h ; exit to operating system.
+mov ax, 4c00h ;exit
 int 21h
 
-proc StuipdPrintMaze
+proc SimplePrintMaze
     ;  /**
     ;  * proc prints maze without colors,
-    ;  * for swift print for debug purposes
+    ;  * for fast print and debugging purposes
     ;  **/
     push bp
     mov bp,sp
     
     push ax
-    push cx
     push dx
     
     mov al, 0     ;set active page 0
@@ -230,24 +233,22 @@ proc StuipdPrintMaze
 	mov ah, 9
 	int 21h   
 	
-	lea dx, SMazeLine13 ;print lines 12-23
+	lea dx, SMazeLine13 ;prints lines 12-23
 	int 21h  
 	 
 	pop dx
-	pop cx
 	pop ax
 	
 	pop bp
     ret
-StuipdPrintMaze endp
+SimplePrintMaze endp
 
 proc PrintMaze
 ;/**
 ;  * This proc prints the whole maze,
 ;  * and colors it according to its chars:
-;  * # - Blue, . - Yellow, @ - Orange
-;  * Maze Dimensions: 46x24 Chars
-;  * Emulator prints maze in 14.27 seconds
+;  * # - Blue, . - Yellow, @ - Orange.
+;  * Maze Dimensions: 54x23 Chars.
 ;**/
 
     push bp
@@ -265,7 +266,7 @@ proc PrintMaze
         
         cmp MazeLine1[si], '#'
         JE Blue
-        cmp MazeLine1[si], '.'
+        cmp MazeLine1[si], '.'    ;set color according to char
         JE Yellow
         cmp MazeLine1[si], '@'
         JE Orange
@@ -276,15 +277,15 @@ proc PrintMaze
         
         Blue:
             mov bl, 99h           ;set color light blue
-            JMP ResumePrint
+            JMP ResumePrint       ;for walls
             
         Yellow:
             mov bl, 0eh           ;set color yellow
-            JMP ResumePrint
+            JMP ResumePrint       ;for points
             
         Orange:
             mov bl, 0ch           ;set color light red
-            JMP ResumePrint
+            JMP ResumePrint       ;for pacman
             
         ResumePrint:
             mov cx, 1             ;how many times to print
@@ -324,7 +325,7 @@ proc MoveCursor
     mov ah, 03h
     int 10h             ;get cursor position. uses bx,cx,dx
     
-    cmp dl, 54          ;print new line after 55 chars
+    cmp dl, 52          ;print new line after 55 chars
     JNE NextCol
     
     inc dh              ;new line
@@ -353,12 +354,12 @@ MoveCursor endp
 proc GetKeyStroke
     ;  /**
     ;  * proc reads keyboard key
-    ;  * clears buffer post reading
+    ;  * clears buffer after reading
     ;  * uses Halt proc to give delay
+    ;  * returns direction (Up,Right,Down,Left) in AL.
     ;  *
-    ;  * lastest movement direction is kept on memory
-    ;  * and always used unless can't be used\newer direction
-    ;  * therefore Implementing a recursive-like approach
+    ;  * lastest movement direction is kept on memory,
+    ;  * and always used unless can't be used\newer direction inputted.
     ;  **/
     push bp
     mov bp, sp
@@ -371,9 +372,7 @@ proc GetKeyStroke
     mov ah, 01h
     int 16h        ;read from buffer
     
-    JZ NoStroke    ; if ZF = 1, no keystroke was entered, required?
-    
-    ;cmp LastMove, 'N' 
+    JZ NoStroke    ; if ZF = 1, no keystroke was entered
     
     cmp ah, 48h    ;up key was pressed
     JE Up
@@ -387,7 +386,7 @@ proc GetKeyStroke
     cmp ah, 4bh    ;left key was presses
     JE Left
     
-    ;not required, debug and simplifaction only!
+    ;converts BIOS codes to ASCII
     Up:
         mov ah, 'U'
         JMP ContGK
@@ -408,13 +407,13 @@ proc GetKeyStroke
     
         mov LastMove, ah ;saves movement
         push ax
-        mov ax, 0c00h    ;ah = 0ch, al = 00h, so no input is attempted by int
+        mov ax, 0c00h    ;ah = 0ch, al = 00h, so no input is attempted by interrupts
         int 21h          ;flushes keyboard buffer
         pop ax
         JMP FinishGK
         
     NoStroke:
-        mov ah, LastMove
+        mov ah, LastMove ;get last direction
     
     FinishGK:
     
@@ -422,7 +421,6 @@ proc GetKeyStroke
     pop cx
     
     pop bp
-    
     ret
     
 GetKeyStroke endp
@@ -590,7 +588,7 @@ proc SetCourse
         dec dl
         
     ContSC:
-    push ax             ;maintains ax
+    ;push ax             ;maintains ax
     mov ah, 2
     int 10h             ;sets cursor position at desired location           
         
@@ -600,7 +598,7 @@ proc SetCourse
     cmp al, '#'         ; if wall denies movement in desired direction
     JE RejectNewCords
     
-    pop ax              ;retrieves ax
+    ;pop ax              ;retrieves ax
     
     mov PlayerRow ,dh 
     mov PlayerCol ,dl   ;updates pacman's position
@@ -616,7 +614,7 @@ proc SetCourse
         ;mov ah, 2
         ;int 10h         ;re-position cursor on pacman
         
-        pop ax
+        ;pop ax
         
     FinishSC:
     pop dx
@@ -753,8 +751,8 @@ proc AICrawl
     inc dl
     
     cmp ch, 3           ;if we are on a crossing (e.g 3 pathes)
-    JGE NewMove             
-                        ;try changing direction    
+    JGE NewMove         ;try changing direction    
+                            
     
     push cx 
     and cl, LastAIMove[si]
@@ -767,6 +765,42 @@ proc AICrawl
     call RandomGen
     
     cmp dx, 0
+    JE CameFromDown
+    
+    cmp dx, 1
+    JE CameFromLeft
+    
+    cmp dx, 2
+    JE CameFromUp
+    
+    cmp dx, 3
+    JE CameFromRight
+    
+    JMP BackWalkBlock         ;fail safe
+    
+    CameFromDown:
+    cmp LastAIMove[si], 00000100b
+    JE BackWalkBlock
+    JMP ContAIC
+    
+    CameFromLeft:
+    cmp LastAIMove[si], 00001000b
+    JE BackWalkBlock
+    JMP ContAIC
+    
+    CameFromUp:
+    cmp LastAIMove[si], 00000001b
+    JE BackWalkBlock
+    JMP ContAIC
+    
+    CameFromRight:
+    cmp LastAIMove[si], 00000010b
+    JE BackWalkBlock
+    JMP ContAIC
+    
+    ContAIC:
+    
+    cmp dx, 0
     JE TryUp         ;up was randomised
     cmp dx, 1
     JE TryRight      ;right was randomised                                            
@@ -775,6 +809,7 @@ proc AICrawl
     cmp dx, 3
     JE TryLeft       ;left was randomised
     
+    BackWalkBlock:
     pop dx
     JMP NewMove      ;fail-safe, incase of bad random number
     
@@ -827,7 +862,7 @@ proc AICrawl
     JMP GoodNewMove
     
      
-    LastMoveGood: ;Doesn't work while emulating step-by-step
+    LastMoveGood: 
     push dx       ;intrdouces double checking, but reduces code required
                   ;not required, only used to keep stack correct due to Try*
     mov cl, LastAIMove[si]
@@ -944,11 +979,12 @@ PlaceAI endp
 
 proc RandomGen
     ;  /**                                                       
-    ;  * proc genrate pseudorandom numbers using XORshift
+    ;  * proc genrates pseudorandom numbers using XORshift.
     ;  * http://en.wikipedia.org/wiki/Xorshift
-    ;  * re-implmanted for 16-bit (see xorshift.c)
-    ;  * Random numbers range from 0-3, and returned in dx
-    ;  * ^ - XOR, >>/<< shift
+    ;  * re-implmanted for 16-bit (see xorshift.c),
+    ;  * and becnhmarked with random.asm.
+    ;  * Random numbers range from 0-3, and returned in dx.
+    ;  * ^ - XOR, >>/<< shift.
     ;  **/
     
     push bp
@@ -1076,6 +1112,26 @@ proc CheckCollisions
     JNE PlayerToAI 
     
     mov si, 0       ;reset si
+    
+    
+    ;sometimes the AI and pacman can cross each other's paths,
+    ;but not overlap. this is considered as losing, but missed by above
+    ;algorithm.
+    
+    mov dh, PlayerRow    ;get current row
+    mov dl, PlayerCol    ;get current col
+    
+    mov ah, 02h
+    int 10h              ;set cursor at pacman's location
+    
+    call CheckLocation
+    cmp al, '@'          ;check if pacman's is where it's supposed to be
+    JE WalkByGood
+    
+    mov ax, 'L'          ;mark Lost
+    JMP FinishCC         ;no need to keep running, jump to the end
+    
+    WalkByGood:
     
     ;checks AIs collisons to remove dead-drops (grey '&')
     ;which are casued by AI cannibalism
@@ -1391,6 +1447,11 @@ proc UI
 UI endp
 
 proc Initialize
+    ;  /**
+    ;  * proc initializes pages 0-5 with:
+    ;  * correct video mode (80X25)
+    ;  * and no cursor blinking. 
+    ;  **/
     push bp
     mov bp, sp 
     
@@ -1427,6 +1488,14 @@ proc Initialize
 endp Initialize
 
 proc Menus
+    ;  /**
+    ;  * proc prints pages 1-5.
+    ;  * page 1: Main menu.
+    ;  * page 2: Instructions.
+    ;  * page 3: About.
+    ;  * page 4: Victory.
+    ;  * page 5: Defeat. 
+    ;  **/
     push bp
     mov bp, sp
     
@@ -1509,7 +1578,7 @@ proc Menus
     call Printer 
     
     ;Defeat
-    mov dx, 050ch      ;set page 4, color light red
+    mov dx, 050ch      ;set page 5, color light red
     push dx
     mov dx, 0700h      ;set starting cords (7,0)
     push dx
@@ -1543,35 +1612,35 @@ proc Printer
     mov dx, [bp+6]   ;cords to start printing from
     mov si, [bp+4]   ;move string address to SI 
     
-    mov cx, 1        ;print char once always
+    mov cx, 1        ;print char only once
     mov ah, 02h
     int 10h      ;set cursor starting position
     
     
     Print2:
-        mov ax, [si]
+        mov ax, [si]     ;get char to print from memory
         cbw
         
-        cmp al, 0ah
+        cmp al, 0ah      ;if NEW LINE
         JE NewLineP
         
-        inc dl
+        inc dl           ;advance column
         mov ah, 09h
         int 10h          ;print char
         
         JMP SetCursorP
         
         NewLineP:
-        inc dh
-        mov dl, 0
+        inc dh           ;advance row
+        mov dl, 0        ;set column to beginning of row
         
         SetCursorP:
-        mov ah, 02h
+        mov ah, 02h      ;set cursor to new location
         int 10h
         
-        inc si
-        cmp [si], '$'
-    JNE Print2
+        inc si           ;advance SI in memory to get next char
+        cmp [si], '$'    ;check if reached string terminator
+    JNE Print2           ;if not, print another char
     
     pop si
     pop dx
