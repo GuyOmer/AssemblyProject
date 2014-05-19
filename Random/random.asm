@@ -90,7 +90,7 @@ proc RandomGen
     mov seed[4], dx   ;z = w
     
     mov ax, dx
-    shr ax, 19        ;w ^ (w >> 19)
+    shr ax, 9         ;w ^ (w >> 9)
     xor dx, ax
     
     xor dx, si        ;...^ t

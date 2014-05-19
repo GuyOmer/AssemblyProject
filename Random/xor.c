@@ -33,7 +33,7 @@ uint16_t RGen(void)
 
     z = w;
 
-    return w = w ^ (w >> 19) ^ t ^ (t >> 8);
+    return w = w ^ (w >> 9) ^ t ^ (t >> 8);
 
 }
 

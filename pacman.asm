@@ -20,8 +20,8 @@ MainMenu db "                               MAIN MENU:",0ah,0ah
          db "Press a letter on the keyboard...","$" 
 
 ;instructions
-Instructions db "          Use the arrow keys to manuover Pacman around the maze.",0ah
-             db "          Avoid the monsters, if they catch you you will lose.  ",0ah
+Instructions db "          Use the arrow keys to maneuver Pacman around the maze.",0ah
+             db "          Avoid the monsters, if they catch you, you will lose.  ",0ah
              db "          Complete the level by eating all the dots.            ","$" 
 
 ;about
@@ -138,7 +138,7 @@ SMazeLine13 db "#######.###.#### ################### ####.###.#######",0dh, 0ah
 PlayerRow db 13
 PlayerCol db 26
 
-LastMove  dw ?
+LastMove  db ?
 
 ;AIs' initial coordinates
     ;AI: 0 |1 |2 |3
@@ -170,7 +170,9 @@ mov es, ax
 call Initialize
 
 ;startup
-call Menus            ;comment those when debugging
+call Menus            ;comment those calls when debugging  
+
+PlayAgain:
 call UI
 
 ;the game itself 
@@ -207,12 +209,11 @@ JMP Done
 
 Done:
 
-; wait for any key....
-mov ah, 1
-int 21h
-
-mov ax, 4c00h ;exit
-int 21h
+    mov ah, 7     
+    int 21h       ;wait for a keypress before restarting
+    
+    call ResetGame
+JMP PlayAgain
 
 proc SimplePrintMaze
     ;  /**
@@ -427,9 +428,9 @@ GetKeyStroke endp
 
 proc Halt
     ;  /**
-    ;  * proc delays program
-    ;  * uses system times to measure time
-    ;  * system time is in clicks, ~18 clicks = 1 second
+    ;  * proc delays program.
+    ;  * uses system times to measure time.
+    ;  * system time is in clicks, ~18 clicks = 1 second.
     ;  **/
     
     push bp
@@ -441,20 +442,18 @@ proc Halt
     push dx
     
     ResetHalt:
-    
-    ;mov al, 0    ;so will be able to notice midnight - clicks reset.
     mov ah, 00h
     int 1ah      ;get system time -> CX:DX, ~18 clicks = 1 second 
      
-    mov bx, dx   ; keep starting time
+    mov bx, dx   ;keep starting time
     
     Counter:
         int 1ah       ;get system time
         sub dx, bx    
-        JS  ResetHalt ;DX-BX < 0, most likley BX greater than 65523
+        JS  ResetHalt ;DX-BX < 0, most likley BX greater than 65527 (65536-9)
                       ;and DX will soon reset
-        cmp dx, 9    ;12 clicks ~ 1/2 second
-    JNGE Counter ;if dx !>= 12
+        cmp dx, 9     ;12 clicks ~ 1/2 second
+    JNGE Counter      ;if dx !>= 12
 
     pop dx
     pop cx
@@ -468,43 +467,41 @@ Halt endp
 
 proc PlayerMove
     ;  /**
-    ;  * proc moves pacman spirit
-    ;  * gets movement direction with GetKeyStroke
-    ;  * checks validity of movement with SetCourse and CheckLocation
+    ;  * proc moves pacman spirit.
+    ;  * gets movement direction with GetKeyStroke,
+    ;  * checks validity of movement with SetCourse and CheckLocation.
     ;  *
-    ;  * proc's input: last direction of movement (AH), output: new direction of movement
+    ;  * proc's input: last direction of movement (AH), output: new direction of movement.
     ;  **/ 
      
     push bp
     mov bp, sp
     
-    ;push ax
     push bx
     push cx
     push dx
     
-    mov dh, PlayerRow   ;sets dx as pacman's new position
+    mov dh, PlayerRow   ;sets dx as pacman's position
     mov dl, PlayerCol
                          
     mov ah, 2
-    int 10h             ;sets cursor at pacma's current location
+    int 10h             ;sets cursor at pacman's current location
     
     call GetKeyStroke   ;returns in AH which key was pressed (Up\Right\Down\Left)
     push ax             ;save AX for after pacman spirit deletion
        
-    mov al, ' '
+    mov al, ' '         ;print SPACE
     mov bl, 00h         ;set color to black
     mov bh, 0           ;set page 0
     mov cx, 1           ;print ' ' only once
      
     mov ah, 09h
-    int 10h             ;remove pacman spirit from maze 
+    int 10h             ;remove pacman's spirit from maze 
     
     pop ax              ;retrieves AX
     
     call SetCourse      ;sets cursor at desired coordinates
-   ;call CheckPosition  ;checks desired coordinates for game elements (walls, points, ghosts...)
-                        ;iff walls returns W, points  P (at AH)  >>Include in SetCourse<<
+
     cmp al, '.'         ;if point
     JE PointsEarned
     
@@ -523,24 +520,23 @@ proc PlayerMove
     push ax             ;saves AX so last direction of movement will be kept
     
     mov ah, 2
-    int 10h             ;re-sets cursor position verfied location
+    int 10h             ;re-sets cursor position at verfied location
     
     mov al, '@'         ;sets pacman spirit
     mov bl, 0ch         ;sets color to light red
     mov bh, 0           ;sets page to 0
-    mov cx, 1           ;print pacman only once
+    mov cx, 1           ;print only once
     
     mov ah, 09h
-    int 10h             ;re-place pacman spirit at maze
+    int 10h             ;re-place pacman's spirit at maze
     
-    pop ax              ;retrieves  AX (last direction of movement)
+    pop ax              ;retrieves AX (last direction of movement)
     
     SkipMovement:
     
     pop dx
     pop cx 
     pop bx
-    ;pop ax
     
     pop bp
     
@@ -550,7 +546,7 @@ PlayerMove endp
 proc SetCourse
     ;  /**
     ;  * proc sets cursor at desired location,
-    ;  * checks if movememt is vaild, and updates pacman's Cords
+    ;  * checks if movememt is vaild, and updates pacman's Cords.
     ;  **/
     
     push bp
@@ -586,35 +582,22 @@ proc SetCourse
         JMP ContSC
     SCLeft:
         dec dl
+        JMP ContSC
         
     ContSC:
-    ;push ax             ;maintains ax
     mov ah, 2
     int 10h             ;sets cursor position at desired location           
         
-    call CheckLocation  ;checks coordinates for game elements
+    call CheckLocation  ;check coordinates for game elements
                         ;returns char at AL, attribute at AH
     
-    cmp al, '#'         ; if wall denies movement in desired direction
-    JE RejectNewCords
-    
-    ;pop ax              ;retrieves ax
+    cmp al, '#'         ;if wall, denie movement in desired direction
+    JE FinishSC
     
     mov PlayerRow ,dh 
-    mov PlayerCol ,dl   ;updates pacman's position
+    mov PlayerCol ,dl   ;update pacman's position
     
     JMP FinishSC
-                        
-    RejectNewCords:
-        mov LastMove, 'N'
-        
-        ;mov dh, PlayerRow 
-        ;mov dl, PlayerCol
-        
-        ;mov ah, 2
-        ;int 10h         ;re-position cursor on pacman
-        
-        ;pop ax
         
     FinishSC:
     pop dx
@@ -627,8 +610,8 @@ SetCourse endp
 
 proc CheckLocation
     ;  /**
-    ;  * proc returns data about current cursor location
-    ;  * char at AL, attribute at AH
+    ;  * proc returns data about current cursor location,
+    ;  * char at AL, attribute at AH.
     ;  **/
     push bp
     mov bp,sp
@@ -655,7 +638,7 @@ proc AIMove
     push dx
     push si
     
-    mov si, 0
+    mov si, 0          ;first AI index is 0
     
     AIs:
     mov dh, AIRow[si] 
@@ -679,15 +662,15 @@ AIMove endp
 
 proc AICrawl
     ;  /**                                                       
-    ;  * proc checks if certain AI can move
-    ;  * up, down, left or right
+    ;  * proc checks if certain AI can move:
+    ;  * up, down, left or right.
     ;  * if more than 2 direction are avilable or lastest movement
-    ;  * direction is unavilable a new direction of movement will be genrated
+    ;  * direction is unavilable, a new direction of movement will be genrated.
     ;  *
-    ;  * CL binary key of possbile directions, CH number of possible directions
+    ;  * CL - binary key of possbile directions, CH - number of possible directions.
     ;  *
-    ;  * proc recives current AI on SI, and his cords on DX
-    ;  * proc returns new good cords for AI in DX
+    ;  * proc recives current AI on SI, and his cords on DX.
+    ;  * proc returns new cords for AI in DX.
     ;  **/
     push bp
     mov bp ,sp
@@ -776,7 +759,7 @@ proc AICrawl
     cmp dx, 3
     JE CameFromRight
     
-    JMP BackWalkBlock         ;fail safe
+    JMP BackWalkBlock         ;fail-safe
     
     CameFromDown:
     cmp LastAIMove[si], 00000100b
@@ -811,7 +794,7 @@ proc AICrawl
     
     BackWalkBlock:
     pop dx
-    JMP NewMove      ;fail-safe, incase of bad random number
+    JMP NewMove      ;fail-safe
     
     TryUp:
     pop dx
@@ -821,7 +804,7 @@ proc AICrawl
     mov LastAIMove[si], cl ;saves new direction
     pop cx
     JNE NewMove
-    dec dh                  ;set new position
+    dec dh                 ;set new position
                         
     JMP GoodNewMove
     
@@ -863,8 +846,8 @@ proc AICrawl
     
      
     LastMoveGood: 
-    push dx       ;intrdouces double checking, but reduces code required
-                  ;not required, only used to keep stack correct due to Try*
+    push dx       ;not required, only used to keep stack correct due to Try*.
+                  ;following code intrdouces double checking, but reduces code required
     mov cl, LastAIMove[si]
      
     cmp cl, 00000001b    ;check if last direction was up
@@ -880,7 +863,7 @@ proc AICrawl
     JE TryLeft
     
     GoodNewMove:
-    mov AIRow[si], dh
+    mov AIRow[si], dh    ;updates cords
     mov AICol[si], dl 
     
     pop cx
@@ -894,9 +877,9 @@ AICrawl endp
 proc AIDelete
     ;  /**                                                       
     ;  * proc removes AI spirit from board,
-    ;  * and re-print the block the exsited on the cords
+    ;  * and re-print the block the exsited on the cords before.
     ;  *
-    ;  * proc recives current AI on SI, and his cords on DX
+    ;  * proc recives current AI on SI, and his cords on DX.
     ;  **/
     push bp
     mov bp, sp
@@ -915,7 +898,7 @@ proc AIDelete
     JE RetYellow             ;and colors it accordingly
     
     mov bl, 07h              ;sets color to grey - default color
-    JMP ResumeDelete         ;not really required, mostly for proper code
+    JMP ResumeDelete         ;not really required, mostly for proper code standard
     
     RetYellow:
             mov bl, 0eh      ;set color yellow
@@ -923,7 +906,7 @@ proc AIDelete
             
     ResumeDelete:
     mov cx, 1                ;print only once
-    mov ah, 09h              ;prints stepped-on-block back
+    mov ah, 09h              ;prints stepped-on-block
     int 10h                 
     
     pop cx
@@ -938,9 +921,9 @@ AIDelete endp
 proc PlaceAI
     ;  /**                                                       
     ;  * proc places AI's spirit on it's new location,
-    ;  * and saves the block the AI is stepping on
+    ;  * and saves the block the AI is stepping on.
     ;  *
-    ;  * proc recives current AI on SI, and his new cords on DX
+    ;  * proc recives current AI on SI, and his new cords on DX.
     ;  **/
     
     push bp
@@ -957,7 +940,7 @@ proc PlaceAI
 	mov ah, 2
 	int 10h                  ;sets cursor on next AI position
 	
-	call CheckLocation       ;reads new position data (al=char, ah=artb)
+	call CheckLocation       ;reads new position data (al=char, ah=attribute)
 	
 	mov LastOn[si], al       ;stores stepped-on block for future retrieval
 	
@@ -995,11 +978,6 @@ proc RandomGen
     push cx
     push si
     
-;    mov ah, 0     ;gets system time
-;    int 1ah       ;populate AX (x), CX (z) and DX (w) with differnt values each call
-;    mov bx, 256   ;y - arbitrary picked
-;    mov si, 0     ;t - value holder
-    
     call Fuzzy        ;attempts to change seed[0]
     
     mov ax, seed[0]
@@ -1016,7 +994,7 @@ proc RandomGen
     mov seed[4], dx   ;z = w
     
     mov ax, dx
-    shr ax, 19        ;w ^ (w >> 19)
+    shr ax, 9         ;w ^ (w >> 9)
     xor dx, ax
     
     xor dx, si        ;...^ t
@@ -1044,11 +1022,11 @@ RandomGen endp
 
 proc Mod
     ;  /**
-    ;  * proc preforms modulo by BX for DX (needs to be passed by caller)
-    ;  * returns moduled value in dx
+    ;  * proc preforms modulo by BX for DX (needs to be passed by caller).
+    ;  * returns moduled value in dx.
     ;  *
     ;  * Due to large numbers, divison takes place on a 32-bit
-    ;  * REG (DX:AX), to eliminate risk of overflow
+    ;  * REG (DX:AX), to eliminate risk of overflow.
     ;  **/
     push bp
     mov bp, sp
@@ -1078,7 +1056,7 @@ proc CheckCollisions
     ;  *    '&'. if there was a collison, LastOn is modified to
     ;  *    to fix it.
     ;  *
-    ;  * proc returns 'L' in AX iff player was eaten, else returns 0.
+    ;  * proc returns 'L' in AX if player was eaten, else returns 0.
     ;  **/
     
     push bp
@@ -1137,7 +1115,7 @@ proc CheckCollisions
     ;which are casued by AI cannibalism
     
     AIToAI:         ;iterate over "source AIs"
-    mov bx, 1       ;only check AIs after current AI (si)
+    mov bx, 1       ;only check AIs after current AI (si), e.g. if we check AI 2 no need to check AI 1 agian
     mov dh, AIRow[si] 
     mov dl, AICol[si] 
     
@@ -1149,18 +1127,18 @@ proc CheckCollisions
         JNE SkipATA     ;if no collison
         
         mov cl, LastOn[si]
-        mov LastOn[si+bx], cl  ;swaps the stepping AI LastOn, with stepped on LastOn
+        mov LastOn[si+bx], cl  ;swap the stepping AI LastOn, with stepped on LastOn
                                ;so stepping AI wont overwrite the correct LastOn with '&'
         SkipATA:
         inc bx
         push bx
         add bx, si
-        cmp bx, 04  ;iterate untill si+bx = 4, i.e. we checked the last ai
+        cmp bx, 04  ;iterate untill si+bx = 4, i.e. we checked the last AI
         pop bx
         JNE AIToAI2
         
     inc si    
-    cmp si, 03      ;iterate 3 times (fourth AI is check though the first 3)
+    cmp si, 03      ;iterate 3 times (fourth AI is checked though the first 3 AIs)
     JNE AIToAI
     
     FinishCC:
@@ -1179,12 +1157,12 @@ proc Fuzzy
     ;  * proc does the following:
     ;  * if (time_clicks % 7 == 0 ) then seed[0]>>(clicks%10).
     ;  * 
-    ;  * proc is suposed to add another factor to the randomizer,
+    ;  * proc adds another factor to the randomizer,
     ;  * which is not seeds dependent, therefore improving randomization,
     ;  * and making AI movement unpredictable.
-    ;  * There are 9362 hits in a sinlge cycle, which means about 15%
+    ;  * There are 9362 hits in a sinlge cycle (~1 hour), which means about 15%
     ;  * of all click's possible values will trigger Fuzzy.
-    ;  * DX's values (0-9) have 1/9% of appering.
+    ;  * shift's values (0-9) have equal 1/9% chance of appering.
     ;  **/
     push bp
     mov bp, sp
@@ -1214,7 +1192,7 @@ proc Fuzzy
     cmp dx, 0    ;if reminder is 0 do nothing
     JE SkipF
     
-    FuzzyLoop:          ;due to the SHR's possbile operand 
+    FuzzyLoop:          ;due to the limited SHR's possbile operands 
         shr seed[0], 1  ;a loop must be induced in order to shift
         dec dx          ;DX times
         cmp dx, 0
@@ -1229,158 +1207,6 @@ proc Fuzzy
     pop bp
     ret    
 Fuzzy endp
-
-proc Pages
-    ;  /**
-    ;  * proc prints pages 1-5.
-    ;  * page 1: Main menu.
-    ;  * page 2: Instructions.
-    ;  * page 3: About.
-    ;  * page 4: Victory.
-    ;  * page 5: Defeat. 
-    ;  **/
-    push bp
-    mov bp, sp
-    
-    push ax
-    push bx
-    push cx
-    push dx
-    push si
-    
-;    ;debug only
-;    mov al, 3     ;set active page 1
-;    mov ah, 05h
-;    int 10h       ;set page
-;    ;end debug only
-    
-    mov bh, 1     ;first page to print logo in
-    
-    mov al, 0     ;write mode (0-nothing, 1-update cursor, 2-attributes are in string)
-  
-    PrintLogonReturn:
-        mov al, 0
-        mov bl, 0eh    ;set color
-    	mov cx, 496    ;number of bytes to print 
-    	mov dx, 0000h  ;start printing from ROW:COL
-    	push bp
-        lea bp, Logo   ;string address to print
-        
-        mov ah, 13h    ;set interrupt         
-        int 10h        ;write logo
-        pop bp
-        
-        cmp bh, 1
-        JE SkipPLR     ;skip printing return on main menu
-       
-        mov al, 0
-        mov bl, 05h    ;set color
-        mov cx, 39     ;number of bytes to print 
-        mov dx, 1600h  ;start printing from ROW:COL
-        push bp
-        lea bp, Return ;load return
-        
-        mov ah, 13h    ;set interrupt
-        int 10h        ;write logo
-        pop bp
-        
-        SkipPLR:
-         
-        inc bh
-        cmp bh, 4        ;print logo in 3 pages
-	JNE PrintLogonReturn    
-    
-    
-;     ;TEST
-;     mov al, 0     ;set write mode
-;     mov bh, 1     ;set page 1
-;     mov bl, 0eh   ;set color
-;     mov cx, 496   ;number of bytes to print 
-;     mov dx, 0000h ;start printing from ROW:COL
-;     push bp
-;     lea bp, Logo  ;string address to print
-;     
-;     mov ah, 13h
-;     int 10h
-;     pop bp            
-;     ;END TEST
-    
-    ;print main menu
-    mov al, 0         ;write mode
-    mov bl, 0eh       ;set color
-    mov bh, 1         ;set page
-    mov cx, 251       ;number of bytes to print 
-    mov dx,0a00h      ;start printing from ROW:COL
-    push bp
-    lea bp, MainMenu  ;load string
-    
-    mov ah, 13h
-    int 10h
-    pop bp 
-
-    ;print instructions
-    mov al, 0         ;set write mode
-    mov bl, 0eh       ;set color
-    mov bh, 2         ;set page
-    mov cx, 198       ;number of bytes to print 
-    mov dx, 0a00h     ;start printing from ROW:COL
-    push bp
-    lea bp, Instructions ;load string
-     
-    int 10h
-    pop bp
-
-    ;print about
-    mov al, 0         ;set wrote mode
-    mov bl, 0eh       ;set color
-    mov bh, 3         ;set page
-    mov cx, 425       ;number of bytes to print 
-    mov dx, 0a00h     ;start printing from ROW:COL
-    push bp
-    lea bp, About     ;load string
-    
-    mov ah, 13h       
-    int 10h
-    pop bp
-    
-    ;print victory
-    mov al, 0       ;set wrote mode
-    mov bl, 0ah     ;set color
-    mov bh, 4       ;set page
-    mov cx, 454     ;number of bytes to print 
-    mov dx, 0700h   ;start printing from ROW:COL
-    push bp
-    lea bp, Victory ;load string
-    
-    mov ah, 13h
-    int 10h
-    pop bp
-    
-    
-    ;print defeat
-    mov al, 0       ;set wrote mode
-    mov bl, 0ch     ;set color
-    mov bh, 5       ;set page
-    mov cx, 495     ;number of bytes to print
-    mov dx, 0700h   ;start printing from ROW:COL
-    push bp
-    lea bp, Defeat  ;load string
-    
-    
-    mov ah, 13h
-    int 10h
-    pop bp
-    
-    
-    pop si
-    pop dx
-    pop cx
-    pop bx
-    pop ax
-    
-    pop bp
-    ret    
-Pages endp
 
 proc UI
     ;  /**
@@ -1397,7 +1223,7 @@ proc UI
     mov ah, 05h
     int 10h       ;set page
     
-    mov ah, 7    ;read from buffer (inptut in AL)
+    mov ah, 7    ;read from buffer (input in AL)
 	int 21h      ;if empty wait for input
     
     cmp al, 'a'
@@ -1421,7 +1247,7 @@ proc UI
         JMP WaitReturn
     
     DispAbout:
-        mov al, 3     ;set active page 2 (About)
+        mov al, 3     ;set active page 3 (About)
         mov ah, 05h
         int 10h       ;set page    
         JMP WaitReturn
@@ -1560,7 +1386,7 @@ proc Menus
     push dx            
     call Printer
     
-    mov dx, 0305h      ;set page 2, color magenta
+    mov dx, 0305h      ;set page 3, color magenta
     push dx
     mov dx, 1600h      ;set starting cords (22,0)
     push dx
@@ -1652,6 +1478,69 @@ proc Printer
     ret 6
 Printer endp
 
+proc ResetGame
+    ;  /**
+    ;  * this proc resets all variables in memory and registers,
+    ;  * and clears game page so it can be re printed safely.
+    ;  **/
+    push bp
+    mov bp, sp
+    
+    mov PlayerRow, 13
+    mov PlayerCol, 26
+    mov LastMove, 'U'
+    
+    mov AIRow[0], 11
+    mov AIRow[1], 11
+    mov AIRow[2], 11
+    mov AIRow[3], 11
+    
+    mov AICol[0], 23
+    mov AICol[1], 25
+    mov AICol[2], 27
+    mov AICol[3], 29
+    
+    mov LastAIMove[0], 1000b
+    mov LastAIMove[1], 0100b
+    mov LastAIMove[2], 0010b
+    mov LastAIMove[3], 0001b
+    
+    mov LastOn[0], ' '
+    mov LastOn[1], ' '
+    mov LastOn[2], ' '
+    mov LastOn[3], ' '
+    
+    mov Points, 230
+    
+    mov al, 0              ;set page 0 (game page)
+    
+    mov ah, 05h            ;set page
+    int 10h
+    
+    mov cx, 0000h          ;windows top right corner
+    mov dx, 184fh          ;window's bottom right corner                       
+    mov al, 0              ;clear screen
+    mov bh, 00h            ;set color black
+                          
+    mov ah,07h             ;scroll down                  
+    int 10h
+    
+    mov dx, 0
+    mov bh, 0
+    
+    mov ah, 02h
+    int 10h                ;set cursor at the beginning of the screen
+    
+    mov ax, 0              ;reset registers
+    mov bx, 0
+    mov cx, 0
+    mov dx, 0
+    mov si, 0
+    mov di, 0
+    
+    pop bp    
+    ret
+ResetGame endp
 ends
 
 end start ; set entry point and stop the assembler.
