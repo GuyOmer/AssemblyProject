@@ -8,10 +8,10 @@ Pacman assembly project for school.
 * ~~Finish pacman movement~~.
 * ~~Implement psude-random number genrator~~.
 * ~~Implement *AI* movement~~.
-* Create *End* game.
-* Add _Power-Up_.
-* Release *AI's* based on time.
-* Add main menu.
+* ~~Create *End* game.~~
+* Add Power-Up.
+* Release AI's based on time.
+* ~~Add main menu.~~
 
 
-~~**_Done_**~~.
+**_Done_**.
