@@ -170,15 +170,15 @@ mov es, ax
 call Initialize
 
 ;startup
-call Menus            ;comment those calls when debugging  
+;call Menus            ;comment this CALLS when debugging  
 
 PlayAgain:
-call UI
+;call UI               ;also this one
 
 ;the game itself 
-call PrintMaze
+;call PrintMaze        ;use SimplePrintMaze when debugging
  
-;call SimplePrintMaze ;fast maze prinitng for debugging
+call SimplePrintMaze  ;fast maze prinitng for debugging
  
 Game:  
     call PlayerMove
