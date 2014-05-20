@@ -747,40 +747,6 @@ NewMove:
 push dx
 call RandomGen
 
-cmp dx, 0
-JE CameFromDown
-
-cmp dx, 1
-JE CameFromLeft
-
-cmp dx, 2
-JE CameFromUp
-
-cmp dx, 3
-JE CameFromRight
-
-JMP BackWalkBlock         ;fail-safe
-
-CameFromDown:
-cmp LastAIMove[si], 00000100b
-JE BackWalkBlock
-JMP ContAIC
-
-CameFromLeft:
-cmp LastAIMove[si], 00001000b
-JE BackWalkBlock
-JMP ContAIC
-
-CameFromUp:
-cmp LastAIMove[si], 00000001b
-JE BackWalkBlock
-JMP ContAIC
-
-CameFromRight:
-cmp LastAIMove[si], 00000010b
-JE BackWalkBlock
-JMP ContAIC
-
 ContAIC:
 
 cmp dx, 0
@@ -792,7 +758,6 @@ JE TryDown       ;down was randomised
 cmp dx, 3
 JE TryLeft       ;left was randomised
 
-BackWalkBlock:
 pop dx
 JMP NewMove      ;fail-safe
 

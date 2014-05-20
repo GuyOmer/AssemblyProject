@@ -472,6 +472,7 @@ proc PlayerMove
     ;  * checks validity of movement with SetCourse and CheckLocation.
     ;  *
     ;  * proc's input: last direction of movement (AH), output: new direction of movement.
+    ;  *               ^^(Thorugh GetKeyStroke)^^
     ;  **/ 
      
     push bp
@@ -498,7 +499,7 @@ proc PlayerMove
     mov ah, 09h
     int 10h             ;remove pacman's spirit from maze 
     
-    pop ax              ;retrieves AX
+    ;pop ax              ;retrieves AX
     
     call SetCourse      ;sets cursor at desired coordinates
 
@@ -555,6 +556,8 @@ proc SetCourse
     push bx
     push dx
     
+    mov ax, [bp+4]
+    
     mov bh, 0         ;sets page to 0
     
     mov dh, PlayerRow ;sets dx as pacman's position
@@ -605,7 +608,7 @@ proc SetCourse
     
     pop bp
     
-    ret   
+    ret 2  
 SetCourse endp
 
 proc CheckLocation
@@ -640,10 +643,7 @@ proc AIMove
     
     mov si, 0          ;first AI index is 0
     
-    AIs:
-    mov dh, AIRow[si] 
-    mov dl, AICol[si]  ;AI's cords
-    
+    AIs: 
     call AIDelete
     call AICrawl
     call PlaceAI    
@@ -669,7 +669,7 @@ proc AICrawl
     ;  *
     ;  * CL - binary key of possbile directions, CH - number of possible directions.
     ;  *
-    ;  * proc recives current AI on SI, and his cords on DX.
+    ;  * proc recives current AI on SI.
     ;  * proc returns new cords for AI in DX.
     ;  **/
     push bp
@@ -678,6 +678,9 @@ proc AICrawl
     push ax
     push bx
     push cx
+    
+    mov dh, AIRow[si]        ;sets current cords
+    mov dl, AICol[si]
     
     mov bh, 0           ;set page 0
     mov cx, 0
@@ -747,40 +750,6 @@ proc AICrawl
     push dx
     call RandomGen
     
-    cmp dx, 0
-    JE CameFromDown
-    
-    cmp dx, 1
-    JE CameFromLeft
-    
-    cmp dx, 2
-    JE CameFromUp
-    
-    cmp dx, 3
-    JE CameFromRight
-    
-    JMP BackWalkBlock         ;fail-safe
-    
-    CameFromDown:
-    cmp LastAIMove[si], 00000100b
-    JE BackWalkBlock
-    JMP ContAIC
-    
-    CameFromLeft:
-    cmp LastAIMove[si], 00001000b
-    JE BackWalkBlock
-    JMP ContAIC
-    
-    CameFromUp:
-    cmp LastAIMove[si], 00000001b
-    JE BackWalkBlock
-    JMP ContAIC
-    
-    CameFromRight:
-    cmp LastAIMove[si], 00000010b
-    JE BackWalkBlock
-    JMP ContAIC
-    
     ContAIC:
     
     cmp dx, 0
@@ -792,7 +761,6 @@ proc AICrawl
     cmp dx, 3
     JE TryLeft       ;left was randomised
     
-    BackWalkBlock:
     pop dx
     JMP NewMove      ;fail-safe
     
@@ -879,7 +847,7 @@ proc AIDelete
     ;  * proc removes AI spirit from board,
     ;  * and re-print the block the exsited on the cords before.
     ;  *
-    ;  * proc recives current AI on SI, and his cords on DX.
+    ;  * proc recives current AI on SI.
     ;  **/
     push bp
     mov bp, sp
@@ -887,6 +855,9 @@ proc AIDelete
     push ax
     push bx 
     push cx
+    
+    mov dh, AIRow[si]        ;sets current cords
+    mov dl, AICol[si]
     
     mov bh, 0                ;set page
 	mov ah, 2
@@ -923,7 +894,7 @@ proc PlaceAI
     ;  * proc places AI's spirit on it's new location,
     ;  * and saves the block the AI is stepping on.
     ;  *
-    ;  * proc recives current AI on SI, and his new cords on DX.
+    ;  * proc recives current AI on SI.
     ;  **/
     
     push bp
