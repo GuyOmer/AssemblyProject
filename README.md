@@ -17,7 +17,7 @@ Pacman assembly project for school.
 **_Done_**.
 
 
-'''python
+'''
 import rr
 import math
 
