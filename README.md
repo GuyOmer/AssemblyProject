@@ -15,3 +15,9 @@ Pacman assembly project for school.
 
 
 **_Done_**.
+
+**V2:**
+* Added Score counter.
+* Started AI Ghosts Blinking.
+* Began Powerup omplmention.
+* Refactored AI Crawl proc with test instruction and some Constants
