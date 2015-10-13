@@ -1,0 +1,9 @@
+          Pacman project in assembly.              
+          For lab unit in Computer Science #899127.
+          Features:                                
+          -Seamless User-Computer interaction.     
+          -Complete functional AI.                 
+          -Pseudo-Random number genrator.          
+          -16-bit colors.                            
+          Project By Guy Omer,                     
+          2014.

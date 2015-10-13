@@ -1,0 +1,6 @@
+                               MAIN MENU:
+                          a. Play.       
+                          b. How to play.
+                          c. About.      
+                          d. Quit.       
+Press a letter on the keyboard...
