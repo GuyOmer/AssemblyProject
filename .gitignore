@@ -217,3 +217,8 @@ pip-log.txt
 #Custom
 Roee/
 noname*
+*~asm
+*.debug
+*.list
+*.symbol
+*.exe*
